@@ -49,9 +49,9 @@ def get_work_log(args, issues_json):
         url = "/rest/api/2/issue/" + issue_json['key'] + "/worklog/"
         response = get_request(args, url, '')
         response_json = json.loads(response.text)
-        worklogs_json = response_json['worklogs']
-        for worklog_json in worklogs_json:
-            time_spent_seconds = worklog_json['timeSpentSeconds']
+        work_logs_json = response_json['worklogs']
+        for work_log_json in work_logs_json:
+            time_spent_seconds = work_log_json['timeSpentSeconds']
             total_time += int(time_spent_seconds)
 
     print("the total work time is:" + str(total_time))
