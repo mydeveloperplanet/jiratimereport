@@ -1,6 +1,7 @@
 import argparse
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
+from operator import attrgetter
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -29,7 +30,7 @@ def get_request(args, url, params):
         auth=auth
     )
 
-    print(json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": ")))
+    #print(json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": ")))
     return response
 
 
@@ -42,8 +43,6 @@ def get_updated_issues(args):
     response = get_request(args, "/rest/api/2/search", query)
     response_json = json.loads(response.text)
     issues_json = response_json['issues']
-    for x in issues_json:
-        print(x)
 
     return issues_json
 
@@ -71,9 +70,13 @@ def get_work_logs(args, issues_json):
 
 
 def process_work_logs(work_logs):
-    for work_log in work_logs:
-        print("the object is: " + work_log.issue_key + "," + str(work_log.started) + "," +
-              str(work_log.time_spent) + "," + work_log.author)
+    sorted_on_person = sorted(work_logs, key=attrgetter('author'))
+    sorted_on_date = sorted(sorted_on_person, key=attrgetter('started'))
+    sorted_on_issue = sorted(sorted_on_date, key=attrgetter('issue_key'))
+    print("The Jira time report")
+    print("====================")
+    for work_log in sorted_on_issue:
+        print(work_log.author + "," + str(work_log.started) + "," + work_log.issue_key + "," + str(timedelta(seconds=work_log.time_spent)))
 
 
 def main():
@@ -97,10 +100,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# Design
-# retrieve updated issues in a timespan period
-# for every issue, retrieve the worklogs
-# if the worklog is inside the timespan, add the worklog to a list
-# is it possible to sort the list on user and timestamps?
-# Print a report
