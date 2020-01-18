@@ -1,6 +1,7 @@
 # This code sample uses the 'requests' library:
 # http://docs.python-requests.org
 import argparse
+from datetime import datetime
 import json
 
 import requests
@@ -44,6 +45,7 @@ def get_updated_issues(args):
 def get_work_log(args, issues_json):
 
     total_time = 0
+    from_date = datetime.strptime(args.from_date, "%Y-%m-%d")
 
     for issue_json in issues_json:
         url = "/rest/api/2/issue/" + issue_json['key'] + "/worklog/"
@@ -51,8 +53,11 @@ def get_work_log(args, issues_json):
         response_json = json.loads(response.text)
         work_logs_json = response_json['worklogs']
         for work_log_json in work_logs_json:
-            time_spent_seconds = work_log_json['timeSpentSeconds']
-            total_time += int(time_spent_seconds)
+            started = work_log_json['started']
+            started_date = datetime.strptime(started[0:10], "%Y-%m-%d")
+            if started_date >= from_date:
+                time_spent_seconds = work_log_json['timeSpentSeconds']
+                total_time += int(time_spent_seconds)
 
     print("the total work time is:" + str(total_time))
 
