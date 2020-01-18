@@ -43,9 +43,18 @@ def get_updated_issues(args):
 
 def get_work_log(args, issues_json):
 
+    total_time = 0
+
     for issue_json in issues_json:
         url = "/rest/api/2/issue/" + issue_json['key'] + "/worklog/"
         response = get_request(args, url, '')
+        response_json = json.loads(response.text)
+        worklogs_json = response_json['worklogs']
+        for worklog_json in worklogs_json:
+            time_spent_seconds = worklog_json['timeSpentSeconds']
+            total_time += int(time_spent_seconds)
+
+    print("the total work time is:" + str(total_time))
 
 
 def main():
