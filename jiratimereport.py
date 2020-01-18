@@ -76,7 +76,7 @@ def process_work_logs(work_logs):
     print("The Jira time report")
     print("====================")
     for work_log in sorted_on_issue:
-        print(work_log.author + "," + str(work_log.started) + "," + work_log.issue_key + "," + str(timedelta(seconds=work_log.time_spent)))
+        print(work_log.author + "," + work_log.started.strftime('%Y-%m-%d') + "," + work_log.issue_key + "," + str(timedelta(seconds=work_log.time_spent)))
 
 
 def main():
