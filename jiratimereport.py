@@ -6,6 +6,14 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 
+class WorkLog:
+    def __init__(self, issue_key, started, time_spent, author):
+        self.issue_key = issue_key
+        self.started = started
+        self.time_spent = time_spent
+        self.author = author
+
+
 def get_request(args, url, params):
     auth = HTTPBasicAuth(args.user_name, args.api_token)
 
@@ -14,12 +22,12 @@ def get_request(args, url, params):
     }
 
     response = requests.request(
-            "GET",
-            args.jira_url + url,
-            headers=headers,
-            params=params,
-            auth=auth
-        )
+        "GET",
+        args.jira_url + url,
+        headers=headers,
+        params=params,
+        auth=auth
+    )
 
     print(json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": ")))
     return response
@@ -40,9 +48,8 @@ def get_updated_issues(args):
     return issues_json
 
 
-def get_work_log(args, issues_json):
-
-    total_time = 0
+def get_work_logs(args, issues_json):
+    work_logs = []
     from_date = datetime.strptime(args.from_date, "%Y-%m-%d")
 
     for issue_json in issues_json:
@@ -54,10 +61,19 @@ def get_work_log(args, issues_json):
             started = work_log_json['started']
             started_date = datetime.strptime(started[0:10], "%Y-%m-%d")
             if started_date >= from_date:
-                time_spent_seconds = work_log_json['timeSpentSeconds']
-                total_time += int(time_spent_seconds)
+                author_json = work_log_json['updateAuthor']
+                work_logs.append(WorkLog(issue_json['key'],
+                                         started_date,
+                                         int(work_log_json['timeSpentSeconds']),
+                                         author_json['displayName']))
 
-    print("the total work time is:" + str(total_time))
+    return work_logs
+
+
+def process_work_logs(work_logs):
+    for work_log in work_logs:
+        print("the object is: " + work_log.issue_key + "," + str(work_log.started) + "," +
+              str(work_log.time_spent) + "," + work_log.author)
 
 
 def main():
@@ -75,7 +91,8 @@ def main():
     args = parser.parse_args()
 
     issues_json = get_updated_issues(args)
-    get_work_log(args, issues_json)
+    work_logs = get_work_logs(args, issues_json)
+    process_work_logs(work_logs)
 
 
 if __name__ == "__main__":
