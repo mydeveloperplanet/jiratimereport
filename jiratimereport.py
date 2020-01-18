@@ -1,5 +1,3 @@
-# This code sample uses the 'requests' library:
-# http://docs.python-requests.org
 import argparse
 from datetime import datetime
 import json
