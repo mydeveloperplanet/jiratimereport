@@ -82,15 +82,15 @@ def process_work_logs(work_logs):
 
 def main():
     parser = argparse.ArgumentParser(description='Generate a Jira time report.')
-    parser.add_argument('--jira_url',
+    parser.add_argument('jira_url',
                         help='The Jira URL')
-    parser.add_argument('--user_name',
+    parser.add_argument('user_name',
                         help='The user name to use for connecting to Jira')
-    parser.add_argument('--api_token',
+    parser.add_argument('api_token',
                         help='The API token to use for connecting to Jira')
-    parser.add_argument('--project',
+    parser.add_argument('project',
                         help='The Jira project to retrieve the time report')
-    parser.add_argument('--from_date',
+    parser.add_argument('from_date',
                         help='The date to start the time report')
     args = parser.parse_args()
 
