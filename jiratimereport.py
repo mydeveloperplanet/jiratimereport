@@ -30,7 +30,7 @@ def get_request(args, url, params):
         auth=auth
     )
 
-    #print(json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": ")))
+    # print(json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": ")))
     return response
 
 
@@ -39,6 +39,8 @@ def get_updated_issues(args):
         'jql': 'project = "' + args.project + '" and timeSpent is not null and updated > "' + args.from_date + '"',
         'fields': 'id,key'
     }
+
+    # TODO: check whether there are more results and recall the request
 
     response = get_request(args, "/rest/api/2/search", query)
     response_json = json.loads(response.text)
@@ -70,13 +72,12 @@ def get_work_logs(args, issues_json):
 
 
 def process_work_logs(work_logs):
-    sorted_on_person = sorted(work_logs, key=attrgetter('author'))
-    sorted_on_date = sorted(sorted_on_person, key=attrgetter('started'))
-    sorted_on_issue = sorted(sorted_on_date, key=attrgetter('issue_key'))
+    sorted_on_issue = sorted(work_logs, key=attrgetter('author', 'started', 'issue_key'))
     print("The Jira time report")
     print("====================")
     for work_log in sorted_on_issue:
-        print(work_log.author + "," + work_log.started.strftime('%Y-%m-%d') + "," + work_log.issue_key + "," + str(timedelta(seconds=work_log.time_spent)))
+        print(work_log.author + "," + work_log.started.strftime('%Y-%m-%d') + "," + work_log.issue_key + "," +
+              str(timedelta(seconds=work_log.time_spent)))
 
 
 def main():
