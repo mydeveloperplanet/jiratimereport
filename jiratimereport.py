@@ -22,13 +22,27 @@ def get_request(args, url, params):
         "Accept": "application/json"
     }
 
-    response = requests.request(
-        "GET",
-        args.jira_url + url,
-        headers=headers,
-        params=params,
-        auth=auth
-    )
+    if args.ssl_certificate:
+
+        response = requests.request(
+            "GET",
+            args.jira_url + url,
+            headers=headers,
+            params=params,
+            auth=auth,
+            verify=args.ssl_certificate
+        )
+
+    else:
+
+        response = requests.request(
+            "GET",
+            args.jira_url + url,
+            headers=headers,
+            params=params,
+            auth=auth
+        )
+
 
     # print(json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": ")))
     return response
@@ -92,6 +106,8 @@ def main():
                         help='The Jira project to retrieve the time report')
     parser.add_argument('from_date',
                         help='The date to start the time report')
+    parser.add_argument('--ssl_certificate',
+                        help='The location of the SSL certificate, needed in case of self-signed certificates')
     args = parser.parse_args()
 
     issues_json = get_updated_issues(args)
