@@ -4,7 +4,11 @@ import json
 from operator import attrgetter
 
 import requests
+import xlsxwriter as xlsxwriter
 from requests.auth import HTTPBasicAuth
+
+CSV_FILE_NAME = "jira-time-report.csv"
+EXCEL_FILE_NAME = "jira-time-report.xlsx"
 
 
 class WorkLog:
@@ -119,13 +123,54 @@ def get_work_logs(args, issues_json):
     return work_logs
 
 
-def process_work_logs(work_logs):
-    sorted_on_issue = sorted(work_logs, key=attrgetter('author', 'started', 'issue_key'))
-    print("The Jira time report")
+def output_to_console(work_logs):
+    print("\nThe Jira time report")
     print("====================")
-    for work_log in sorted_on_issue:
+    for work_log in work_logs:
         print(work_log.author + ";" + work_log.started.strftime('%Y-%m-%d') + ";" + work_log.issue_key + ";" +
               str(timedelta(seconds=work_log.time_spent)))
+
+
+def output_to_csv(work_logs):
+    try:
+        file = open(CSV_FILE_NAME, "w")
+        for work_log in work_logs:
+            file.write(work_log.author + ";" + work_log.started.strftime('%Y-%m-%d') + ";" + work_log.issue_key + ";" +
+                       str(timedelta(seconds=work_log.time_spent)) + "\n")
+    except:
+        print("Something went wrong when writing to the file")
+    finally:
+        file.close()
+
+
+def output_to_excel(work_logs):
+    try:
+        workbook = xlsxwriter.Workbook(EXCEL_FILE_NAME)
+        worksheet = workbook.add_worksheet()
+        row = 0
+
+        for work_log in work_logs:
+            worksheet.write(row, 0, work_log.author)
+            worksheet.write(row, 1, work_log.started.strftime('%Y-%m-%d'))
+            worksheet.write(row, 2, work_log.issue_key)
+            worksheet.write(row, 3, str(timedelta(seconds=work_log.time_spent)))
+
+            row += 1
+    except:
+        print("Something went wrong when writing to the file")
+    finally:
+        workbook.close()
+
+
+def process_work_logs(args, work_logs):
+    sorted_on_issue = sorted(work_logs, key=attrgetter('author', 'started', 'issue_key'))
+
+    if args.output == "csv":
+        output_to_csv(sorted_on_issue)
+    elif args.output == "excel":
+        output_to_excel(sorted_on_issue)
+    else:
+        output_to_console(sorted_on_issue)
 
 
 def main():
@@ -142,13 +187,15 @@ def main():
                         help='The date to start the time report, format yyyy-mm-dd')
     parser.add_argument('--to_date',
                         help='The date to end the time report (the end date is inclusive), format yyyy-mm-dd')
+    parser.add_argument('--output', choices={"console", "csv", "excel"}, default="console",
+                        help='The output format')
     parser.add_argument('--ssl_certificate',
                         help='The location of the SSL certificate, needed in case of self-signed certificates')
     args = parser.parse_args()
 
     issues_json = get_updated_issues(args)
     work_logs = get_work_logs(args, issues_json)
-    process_work_logs(work_logs)
+    process_work_logs(args, work_logs)
 
 
 if __name__ == "__main__":
