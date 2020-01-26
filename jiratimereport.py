@@ -43,20 +43,27 @@ def get_request(args, url, params):
             auth=auth
         )
 
-
-    #print(json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": ")))
+    # print(json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": ")))
     return response
 
 
-def get_updated_issues(args):
+def convert_to_date(args):
+    if args.to_date:
+        to_date = datetime.strptime(args.to_date, "%Y-%m-%d") + timedelta(days=1)
+    else:
+        to_date = datetime.now() + timedelta(days=1)
+    return to_date
 
+
+def get_updated_issues(args):
     issues_json = []
     start_at = 0
 
     while True:
 
         query = {
-            'jql': 'project = "' + args.project + '" and timeSpent is not null and updated > "' + args.from_date + '"',
+            'jql': 'project = "' + args.project + '" and timeSpent is not null and updated > "' + args.from_date + '"' +
+                   ' and updated < "' + convert_to_date(args).strftime("%Y-%m-%d") + '"',
             'fields': 'id,key',
             'startAt': str(start_at)
         }
@@ -79,6 +86,7 @@ def get_updated_issues(args):
 def get_work_logs(args, issues_json):
     work_logs = []
     from_date = datetime.strptime(args.from_date, "%Y-%m-%d")
+    to_date = convert_to_date(args)
 
     for issue_json in issues_json:
         start_at = 0
@@ -93,7 +101,7 @@ def get_work_logs(args, issues_json):
             for work_log_json in work_logs_json:
                 started = work_log_json['started']
                 started_date = datetime.strptime(started[0:10], "%Y-%m-%d")
-                if started_date >= from_date:
+                if from_date <= started_date < to_date:
                     author_json = work_log_json['updateAuthor']
                     work_logs.append(WorkLog(issue_json['key'],
                                              started_date,
@@ -131,7 +139,9 @@ def main():
     parser.add_argument('project',
                         help='The Jira project to retrieve the time report')
     parser.add_argument('from_date',
-                        help='The date to start the time report')
+                        help='The date to start the time report, format yyyy-mm-dd')
+    parser.add_argument('--to_date',
+                        help='The date to end the time report (the end date is inclusive), format yyyy-mm-dd')
     parser.add_argument('--ssl_certificate',
                         help='The location of the SSL certificate, needed in case of self-signed certificates')
     args = parser.parse_args()
