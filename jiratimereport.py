@@ -81,19 +81,32 @@ def get_work_logs(args, issues_json):
     from_date = datetime.strptime(args.from_date, "%Y-%m-%d")
 
     for issue_json in issues_json:
-        url = "/rest/api/2/issue/" + issue_json['key'] + "/worklog/"
-        response = get_request(args, url, '')
-        response_json = json.loads(response.text)
-        work_logs_json = response_json['worklogs']
-        for work_log_json in work_logs_json:
-            started = work_log_json['started']
-            started_date = datetime.strptime(started[0:10], "%Y-%m-%d")
-            if started_date >= from_date:
-                author_json = work_log_json['updateAuthor']
-                work_logs.append(WorkLog(issue_json['key'],
-                                         started_date,
-                                         int(work_log_json['timeSpentSeconds']),
-                                         author_json['displayName']))
+        start_at = 0
+        while True:
+            params = {
+                'startAt': str(start_at)
+            }
+            url = "/rest/api/2/issue/" + issue_json['key'] + "/worklog/"
+            response = get_request(args, url, params)
+            response_json = json.loads(response.text)
+            work_logs_json = response_json['worklogs']
+            for work_log_json in work_logs_json:
+                started = work_log_json['started']
+                started_date = datetime.strptime(started[0:10], "%Y-%m-%d")
+                if started_date >= from_date:
+                    author_json = work_log_json['updateAuthor']
+                    work_logs.append(WorkLog(issue_json['key'],
+                                             started_date,
+                                             int(work_log_json['timeSpentSeconds']),
+                                             author_json['displayName']))
+
+            total_number_of_issues = int(response_json['total'])
+            max_results = int(response_json['maxResults'])
+            max_number_of_issues_processed = start_at + max_results
+            if max_number_of_issues_processed < total_number_of_issues:
+                start_at = max_number_of_issues_processed
+            else:
+                break
 
     return work_logs
 
