@@ -44,21 +44,34 @@ def get_request(args, url, params):
         )
 
 
-    # print(json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": ")))
+    #print(json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": ")))
     return response
 
 
 def get_updated_issues(args):
-    query = {
-        'jql': 'project = "' + args.project + '" and timeSpent is not null and updated > "' + args.from_date + '"',
-        'fields': 'id,key'
-    }
 
-    # TODO: check whether there are more results and recall the request
+    issues_json = []
+    start_at = 0
 
-    response = get_request(args, "/rest/api/2/search", query)
-    response_json = json.loads(response.text)
-    issues_json = response_json['issues']
+    while True:
+
+        query = {
+            'jql': 'project = "' + args.project + '" and timeSpent is not null and updated > "' + args.from_date + '"',
+            'fields': 'id,key',
+            'startAt': str(start_at)
+        }
+
+        response = get_request(args, "/rest/api/2/search", query)
+        response_json = json.loads(response.text)
+        issues_json.extend(response_json['issues'])
+
+        total_number_of_issues = int(response_json['total'])
+        max_results = int(response_json['maxResults'])
+        max_number_of_issues_processed = start_at + max_results
+        if max_number_of_issues_processed < total_number_of_issues:
+            start_at = max_number_of_issues_processed
+        else:
+            break
 
     return issues_json
 
