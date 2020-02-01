@@ -88,8 +88,8 @@ def get_updated_issues(args):
     while True:
 
         query = {
-            'jql': 'project = "' + args.project + '" and timeSpent is not null and worklogDate >= "' + args.from_date + '"' +
-                   ' and worklogDate < "' + convert_to_date(args).strftime("%Y-%m-%d") + '"',
+            'jql': 'project = "' + args.project + '" and timeSpent is not null and worklogDate >= "' + args.from_date +
+                   '"' + ' and worklogDate < "' + convert_to_date(args).strftime("%Y-%m-%d") + '"',
             'fields': 'id,key',
             'startAt': str(start_at)
         }
@@ -180,8 +180,6 @@ def output_to_csv(work_logs):
         for work_log in work_logs:
             file.write(work_log.author + ";" + work_log.started.strftime('%Y-%m-%d') + ";" + work_log.issue_key + ";" +
                        str(timedelta(seconds=work_log.time_spent)) + "\n")
-    except:
-        print("Something went wrong when writing to the file")
     finally:
         file.close()
 
@@ -203,8 +201,6 @@ def output_to_excel(work_logs):
             worksheet.write(row, 3, str(timedelta(seconds=work_log.time_spent)))
 
             row += 1
-    except:
-        print("Something went wrong when writing to the file")
     finally:
         workbook.close()
 
