@@ -88,8 +88,8 @@ def get_updated_issues(args):
     while True:
 
         query = {
-            'jql': 'project = "' + args.project + '" and timeSpent is not null and updated > "' + args.from_date + '"' +
-                   ' and updated < "' + convert_to_date(args).strftime("%Y-%m-%d") + '"',
+            'jql': 'project = "' + args.project + '" and timeSpent is not null and worklogDate >= "' + args.from_date + '"' +
+                   ' and worklogDate < "' + convert_to_date(args).strftime("%Y-%m-%d") + '"',
             'fields': 'id,key',
             'startAt': str(start_at)
         }
