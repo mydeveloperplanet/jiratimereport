@@ -7,16 +7,10 @@ import requests
 import xlsxwriter as xlsxwriter
 from requests.auth import HTTPBasicAuth
 
+from worklog import WorkLog
+
 CSV_FILE_NAME = "jira-time-report.csv"
 EXCEL_FILE_NAME = "jira-time-report.xlsx"
-
-
-class WorkLog:
-    def __init__(self, issue_key, started, time_spent, author):
-        self.issue_key = issue_key
-        self.started = started
-        self.time_spent = time_spent
-        self.author = author
 
 
 def get_request(args, url, params):
