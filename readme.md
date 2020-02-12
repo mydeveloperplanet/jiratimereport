@@ -36,3 +36,5 @@ Usage of the script:
       --ssl_certificate SSL_CERTIFICATE
                             The location of the SSL certificate, needed in case of
                             self-signed certificates
+                            
+See also the corresponding blog post: https://mydeveloperplanet.com/2020/02/12/how-to-use-the-jira-api/
