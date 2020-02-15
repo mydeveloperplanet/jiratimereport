@@ -13,36 +13,39 @@ CSV_FILE_NAME = "jira-time-report.csv"
 EXCEL_FILE_NAME = "jira-time-report.xlsx"
 
 
-def get_request(args, url, params):
+def get_request(jira_url, user_name, api_token, ssl_certificate, url, params):
     """Perform the GET request to the Jira server
 
-    :param args: the given input arguments when starting the application
+    :param jira_url: The base Jira URL
+    :param user_name The user name to use for connecting to Jira
+    :param api_token The API token to use for connecting to Jira
+    :param ssl_certificate The location of the SSL certificate, needed in case of self-signed certificates
     :param url: the complete Jira URL for invoking the request
     :param params: the parameters to be added to the Jira URL
     :return: the complete response as returned from the Jira API
     """
-    auth = HTTPBasicAuth(args.user_name, args.api_token)
+    auth = HTTPBasicAuth(user_name, api_token)
 
     headers = {
         "Accept": "application/json"
     }
 
-    if args.ssl_certificate:
+    if ssl_certificate:
 
         response = requests.request(
             "GET",
-            args.jira_url + url,
+            jira_url + url,
             headers=headers,
             params=params,
             auth=auth,
-            verify=args.ssl_certificate
+            verify=ssl_certificate
         )
 
     else:
 
         response = requests.request(
             "GET",
-            args.jira_url + url,
+            jira_url + url,
             headers=headers,
             params=params,
             auth=auth
@@ -51,28 +54,34 @@ def get_request(args, url, params):
     return response
 
 
-def convert_to_date(args):
+def convert_to_date(to_date):
     """Convert the to_date argument
 
     The to_date argument is an up and including date. The easiest way to cope with this, is to strip of the time and
     to add one day to the given to_date. This will make it easier to use in queries.
 
-    :param args: the given input arguments when starting the application
+    :param to_date The date to end the time report (the end date is inclusive), format yyyy-mm-dd
     :return: the to_date plus one day at time 00:00:00
     """
-    if args.to_date:
-        to_date = datetime.strptime(args.to_date, "%Y-%m-%d") + timedelta(days=1)
+    if to_date:
+        converted_to_date = datetime.strptime(to_date, "%Y-%m-%d") + timedelta(days=1)
     else:
-        to_date = datetime.now() + timedelta(days=1)
-    return to_date
+        converted_to_date = datetime.now() + timedelta(days=1)
+    return converted_to_date
 
 
-def get_updated_issues(args):
+def get_updated_issues(jira_url, user_name, api_token, project, from_date, to_date, ssl_certificate):
     """Retrieve the updated issues from Jira
 
     Only the updated issues containing time spent and between the given from and to date are retrieved.
 
-    :param args: the given input arguments when starting the application
+    :param jira_url: The base Jira URL
+    :param user_name The user name to use for connecting to Jira
+    :param api_token The API token to use for connecting to Jira
+    :param project The Jira project to retrieve the time report
+    :param from_date The date to start the time report, format yyyy-mm-dd
+    :param to_date The date to end the time report (the end date is inclusive), format yyyy-mm-dd
+    :param ssl_certificate The location of the SSL certificate, needed in case of self-signed certificates
     :return: a list of issues in json format (as retrieved from the Jira API)
     """
 
@@ -82,13 +91,13 @@ def get_updated_issues(args):
     while True:
 
         query = {
-            'jql': 'project = "' + args.project + '" and timeSpent is not null and worklogDate >= "' + args.from_date +
-                   '"' + ' and worklogDate < "' + convert_to_date(args).strftime("%Y-%m-%d") + '"',
+            'jql': 'project = "' + project + '" and timeSpent is not null and worklogDate >= "' + from_date +
+                   '"' + ' and worklogDate < "' + convert_to_date(to_date).strftime("%Y-%m-%d") + '"',
             'fields': 'id,key',
             'startAt': str(start_at)
         }
 
-        response = get_request(args, "/rest/api/2/search", query)
+        response = get_request(jira_url, user_name, api_token, ssl_certificate, "/rest/api/2/search", query)
         response_json = json.loads(response.text)
         issues_json.extend(response_json['issues'])
 
@@ -104,19 +113,24 @@ def get_updated_issues(args):
     return issues_json
 
 
-def get_work_logs(args, issues_json):
+def get_work_logs(jira_url, user_name, api_token, from_date, to_date, ssl_certificate, issues_json):
     """Retrieve the work logs from Jira
 
     All work logs from the list of issues are retrieved. Only the work logs which have been started between the from and
     to date are used, the other work logs are not taken into account.
 
-    :param args: the given input arguments when starting the application
+    :param jira_url: The base Jira URL
+    :param user_name The user name to use for connecting to Jira
+    :param api_token The API token to use for connecting to Jira
+    :param from_date The date to start the time report, format yyyy-mm-dd
+    :param to_date The date to end the time report (the end date is inclusive), format yyyy-mm-dd
+    :param ssl_certificate The location of the SSL certificate, needed in case of self-signed certificates
     :param issues_json: a list of issues in json format (as retrieved from the Jira API)
     :return: the list of work logs which has been requested
     """
     work_logs = []
-    from_date = datetime.strptime(args.from_date, "%Y-%m-%d")
-    to_date = convert_to_date(args)
+    from_date = datetime.strptime(from_date, "%Y-%m-%d")
+    to_date = convert_to_date(to_date)
 
     for issue_json in issues_json:
         start_at = 0
@@ -126,7 +140,7 @@ def get_work_logs(args, issues_json):
             }
 
             url = "/rest/api/2/issue/" + issue_json['key'] + "/worklog/"
-            response = get_request(args, url, params)
+            response = get_request(jira_url, user_name, api_token, ssl_certificate, url, params)
             response_json = json.loads(response.text)
             work_logs_json = response_json['worklogs']
 
@@ -199,19 +213,19 @@ def output_to_excel(work_logs):
         workbook.close()
 
 
-def process_work_logs(args, work_logs):
+def process_work_logs(output, work_logs):
     """Process the retrieved work logs from the Jira API
 
     The work logs are sorted and printed to the specified output format
 
-    :param args: the given input arguments when starting the application
+    :param output: The output format
     :param work_logs: the list of work logs which must be printed
     """
     sorted_on_issue = sorted(work_logs, key=attrgetter('author', 'started', 'issue_key'))
 
-    if args.output == "csv":
+    if output == "csv":
         output_to_csv(sorted_on_issue)
-    elif args.output == "excel":
+    elif output == "excel":
         output_to_excel(sorted_on_issue)
     else:
         output_to_console(sorted_on_issue)
@@ -245,9 +259,11 @@ def main():
                         help='The location of the SSL certificate, needed in case of self-signed certificates')
     args = parser.parse_args()
 
-    issues_json = get_updated_issues(args)
-    work_logs = get_work_logs(args, issues_json)
-    process_work_logs(args, work_logs)
+    issues_json = get_updated_issues(args.jira_url, args.user_name, args.api_token, args.project, args.from_date,
+                                     args.to_date, args.ssl_certificate)
+    work_logs = get_work_logs(args.jira_url, args.user_name, args.api_token, args.from_date, args.to_date,
+                              args.ssl_certificate, issues_json)
+    process_work_logs(args.output, work_logs)
 
 
 if __name__ == "__main__":
