@@ -1,0 +1,87 @@
+{
+  "startAt": 0,
+  "maxResults": 1048576,
+  "total": 2,
+  "worklogs": [
+    {
+      "self": "https://jira_url/rest/api/2/issue/10005/worklog/10001",
+      "author": {
+        "self": "https://jira_url/rest/api/2/user?accountId=012345678901234567890123",
+        "accountId": "012345678901234567890123",
+        "emailAddress": "john.doe@a.a",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/01234567890123456789012345678901?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FGR-1.png&size=48&s=48",
+          "24x24": "https://secure.gravatar.com/avatar/01234567890123456789012345678901?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FGR-1.png&size=24&s=24",
+          "16x16": "https://secure.gravatar.com/avatar/01234567890123456789012345678901?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FGR-1.png&size=16&s=16",
+          "32x32": "https://secure.gravatar.com/avatar/01234567890123456789012345678901?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FGR-1.png&size=32&s=32"
+        },
+        "displayName": "John Doe",
+        "active": true,
+        "timeZone": "Europe/Amsterdam",
+        "accountType": "atlassian"
+      },
+      "updateAuthor": {
+        "self": "https://jira_url/rest/api/2/user?accountId=012345678901234567890123",
+        "accountId": "012345678901234567890123",
+        "emailAddress": "john.doe@a.a",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/01234567890123456789012345678901?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FGR-1.png&size=48&s=48",
+          "24x24": "https://secure.gravatar.com/avatar/01234567890123456789012345678901?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FGR-1.png&size=24&s=24",
+          "16x16": "https://secure.gravatar.com/avatar/01234567890123456789012345678901?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FGR-1.png&size=16&s=16",
+          "32x32": "https://secure.gravatar.com/avatar/01234567890123456789012345678901?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FGR-1.png&size=32&s=32"
+        },
+        "displayName": "John Doe",
+        "active": true,
+        "timeZone": "Europe/Amsterdam",
+        "accountType": "atlassian"
+      },
+      "created": "2020-01-18T12:03:54.694+0100",
+      "updated": "2020-01-18T12:03:54.694+0100",
+      "started": "2020-01-18T11:03:27.142+0100",
+      "timeSpent": "1h",
+      "timeSpentSeconds": 3600,
+      "id": "10001",
+      "issueId": "10005"
+    },
+    {
+      "self": "https://jira_url/rest/api/2/issue/10005/worklog/10002",
+      "author": {
+        "self": "https://jira_url/rest/api/2/user?accountId=012345678901234567890123",
+        "accountId": "012345678901234567890123",
+        "emailAddress": "john.doe@a.a",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/01234567890123456789012345678901?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FGR-1.png&size=48&s=48",
+          "24x24": "https://secure.gravatar.com/avatar/01234567890123456789012345678901?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FGR-1.png&size=24&s=24",
+          "16x16": "https://secure.gravatar.com/avatar/01234567890123456789012345678901?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FGR-1.png&size=16&s=16",
+          "32x32": "https://secure.gravatar.com/avatar/01234567890123456789012345678901?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FGR-1.png&size=32&s=32"
+        },
+        "displayName": "John Doe",
+        "active": true,
+        "timeZone": "Europe/Amsterdam",
+        "accountType": "atlassian"
+      },
+      "updateAuthor": {
+        "self": "https://jira_url/rest/api/2/user?accountId=012345678901234567890123",
+        "accountId": "012345678901234567890123",
+        "emailAddress": "john.doe@a.a",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/01234567890123456789012345678901?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FGR-1.png&size=48&s=48",
+          "24x24": "https://secure.gravatar.com/avatar/01234567890123456789012345678901?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FGR-1.png&size=24&s=24",
+          "16x16": "https://secure.gravatar.com/avatar/01234567890123456789012345678901?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FGR-1.png&size=16&s=16",
+          "32x32": "https://secure.gravatar.com/avatar/01234567890123456789012345678901?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FGR-1.png&size=32&s=32"
+        },
+        "displayName": "John Doe",
+        "active": true,
+        "timeZone": "Europe/Amsterdam",
+        "accountType": "atlassian"
+      },
+      "created": "2020-01-18T16:39:26.822+0100",
+      "updated": "2020-01-18T16:39:26.822+0100",
+      "started": "2020-01-18T15:09:18.604+0100",
+      "timeSpent": "1h 30m",
+      "timeSpentSeconds": 5400,
+      "id": "10002",
+      "issueId": "10005"
+    }
+  ]
+}
