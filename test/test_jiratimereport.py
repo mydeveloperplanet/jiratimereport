@@ -77,7 +77,6 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(work_logs[1], WorkLog("MYB-5", datetime(2020, 1, 18), 5400, "John Doe"))
         self.assertEqual(work_logs[2], WorkLog("MYB-4", datetime(2020, 1, 12), 3600, "John Doe"))
 
-
     def test_get_work_logs_multiple_pages(self):
         """
         Test the multiple pages response when retrieving Jira issues (pagination)
