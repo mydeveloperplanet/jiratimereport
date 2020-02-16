@@ -1,0 +1,14 @@
+{
+  "expand": "schema,names",
+  "startAt": 2,
+  "maxResults": 2,
+  "total": 3,
+  "issues": [
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "10006",
+      "self": "https://jira_url/rest/api/2/issue/10006",
+      "key": "MYB-6"
+    }
+  ]
+}

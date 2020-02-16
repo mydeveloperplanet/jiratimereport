@@ -1,0 +1,20 @@
+{
+  "expand": "schema,names",
+  "startAt": 0,
+  "maxResults": 2,
+  "total": 3,
+  "issues": [
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "10005",
+      "self": "https://jira_url/rest/api/2/issue/10005",
+      "key": "MYB-5"
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "id": "10004",
+      "self": "https://jira_url/rest/api/2/issue/10004",
+      "key": "MYB-4"
+    }
+  ]
+}
