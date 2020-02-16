@@ -183,13 +183,10 @@ def output_to_csv(work_logs):
 
     :param work_logs: the list of work logs which must be printed
     """
-    try:
-        file = open(CSV_FILE_NAME, "w")
+    with open(CSV_FILE_NAME, "w") as file:
         for work_log in work_logs:
             file.write(work_log.author + ";" + work_log.started.strftime('%Y-%m-%d') + ";" + work_log.issue_key + ";" +
                        str(timedelta(seconds=work_log.time_spent)) + "\n")
-    finally:
-        file.close()
 
 
 def output_to_excel(work_logs):
@@ -197,8 +194,7 @@ def output_to_excel(work_logs):
 
     :param work_logs: the list of work logs which must be printed
     """
-    try:
-        workbook = xlsxwriter.Workbook(EXCEL_FILE_NAME)
+    with xlsxwriter.Workbook(EXCEL_FILE_NAME) as workbook:
         worksheet = workbook.add_worksheet()
         row = 0
 
@@ -209,8 +205,6 @@ def output_to_excel(work_logs):
             worksheet.write(row, 3, str(timedelta(seconds=work_log.time_spent)))
 
             row += 1
-    finally:
-        workbook.close()
 
 
 def process_work_logs(output, work_logs):
