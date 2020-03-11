@@ -37,4 +37,8 @@ Usage of the script:
                             The location of the SSL certificate, needed in case of
                             self-signed certificates
                             
-See also the corresponding blog post: https://mydeveloperplanet.com/2020/02/12/how-to-use-the-jira-api/
+See also the corresponding blog posts: 
+
+https://mydeveloperplanet.com/2020/02/12/how-to-use-the-jira-api/
+
+https://mydeveloperplanet.com/2020/03/11/how-to-mock-a-rest-api-in-python/
