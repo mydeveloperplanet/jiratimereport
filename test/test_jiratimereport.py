@@ -1,12 +1,30 @@
 import filecmp
+import json
 import unittest
 import requests_mock
 import jiratimereport
+from issue import Issue
 from worklog import WorkLog
 from datetime import datetime
 
 
 class MyTestCase(unittest.TestCase):
+
+    def test_convert_json_to_issues(self):
+        """
+        Test the conversion of json issues to object issues
+        """
+        with open("convert_json_to_issues.json", "r") as issues_file:
+            response_json = json.loads(issues_file.read())
+
+        issues = jiratimereport.convert_json_to_issues(response_json)
+
+        issues_expected_result = [
+            Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5"),
+            Issue(10004, "MYB-4", "Summary of issue MYB-4", "MYB-3", "Summary of the parent issue of MYB-4")]
+
+        self.assertListEqual(issues_expected_result, issues, "Issues lists are unequal")
+
     def test_get_updated_issues_one_page(self):
         """
         Test the single page response when retrieving Jira issues
@@ -74,9 +92,11 @@ class MyTestCase(unittest.TestCase):
             work_logs = jiratimereport.get_work_logs("https://jira_url", "user_name", "api_token",
                                                      "2020-01-10", "2020-01-20", "", issues_json)
 
-        self.assertEqual(work_logs[0], WorkLog("MYB-5", datetime(2020, 1, 18), 3600, "John Doe"))
-        self.assertEqual(work_logs[1], WorkLog("MYB-5", datetime(2020, 1, 18), 5400, "John Doe"))
-        self.assertEqual(work_logs[2], WorkLog("MYB-4", datetime(2020, 1, 12), 3600, "John Doe"))
+        work_logs_expected_result = [WorkLog("MYB-5", datetime(2020, 1, 18), 3600, "John Doe"),
+                                     WorkLog("MYB-5", datetime(2020, 1, 18), 5400, "John Doe"),
+                                     WorkLog("MYB-4", datetime(2020, 1, 12), 3600, "John Doe")]
+
+        self.assertListEqual(work_logs_expected_result, work_logs, "Work Log lists are unequal")
 
     def test_get_work_logs_multiple_pages(self):
         """
@@ -98,18 +118,23 @@ class MyTestCase(unittest.TestCase):
             work_logs = jiratimereport.get_work_logs("https://jira_url", "user_name", "api_token",
                                                      "2020-01-10", "2020-01-20", "", issues_json)
 
-        self.assertEqual(work_logs[0], WorkLog("MYB-5", datetime(2020, 1, 18), 3600, "John Doe"))
-        self.assertEqual(work_logs[1], WorkLog("MYB-5", datetime(2020, 1, 18), 5400, "John Doe"))
-        self.assertEqual(work_logs[2], WorkLog("MYB-5", datetime(2020, 1, 12), 3600, "John Doe"))
+        work_logs_expected_result = [WorkLog("MYB-5", datetime(2020, 1, 18), 3600, "John Doe"),
+                                     WorkLog("MYB-5", datetime(2020, 1, 18), 5400, "John Doe"),
+                                     WorkLog("MYB-5", datetime(2020, 1, 12), 3600, "John Doe")]
+
+        self.assertListEqual(work_logs_expected_result, work_logs, "Work Log lists are unequal")
 
     def test_csv_output(self):
+        """
+        Test the CSV output including UTF-16 characters
+        """
         work_logs = [WorkLog("MYB-7", datetime(2020, 1, 20), 3600, "René Doe"),
                      WorkLog("MYB-5", datetime(2020, 1, 18), 3600, "John Doe"),
                      WorkLog("MYB-5", datetime(2020, 1, 18), 5400, "John Doe"),
                      WorkLog("MYB-5", datetime(2020, 1, 12), 3600, "John Doe")]
         jiratimereport.process_work_logs("csv", work_logs)
 
-        self.assertTrue(filecmp.cmp('jira-time-report.csv', 'csv_output.csv'))
+        self.assertTrue(filecmp.cmp('csv_output.csv', 'jira-time-report.csv'))
 
 
 if __name__ == '__main__':

@@ -1,0 +1,100 @@
+{
+  "expand": "schema,names",
+  "startAt": 0,
+  "maxResults": 50,
+  "total": 2,
+  "issues": [
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "fields": {
+          "parent": {
+              "fields": {
+                  "issuetype": {
+                      "avatarId": 10000,
+                      "description": "Functionality or a feature expressed as a user goal.",
+                      "iconUrl": "https://jira_url/secure/viewavatar?size=medium&avatarId=10000&avatarType=issuetype",
+                      "id": "10001",
+                      "name": "Story",
+                      "self": "https://jira_url/rest/api/2/issuetype/10001",
+                      "subtask": false
+                  },
+                  "priority": {
+                      "iconUrl": "https://jira_url/images/icons/priorities/medium.svg",
+                      "id": "3",
+                      "name": "Medium",
+                      "self": "https://jira_url/rest/api/2/priority/3"
+                  },
+                  "status": {
+                      "description": "",
+                      "iconUrl": "https://jira_url/",
+                      "id": "10000",
+                      "name": "To Do",
+                      "self": "https://jira_url/rest/api/2/status/10000",
+                      "statusCategory": {
+                          "colorName": "blue-gray",
+                          "id": 2,
+                          "key": "new",
+                          "name": "To Do",
+                          "self": "https://jira_url/rest/api/2/statuscategory/2"
+                      }
+                  },
+                  "summary": "Summary of the parent issue of MYB-5"
+              },
+              "id": "10002",
+              "key": "MYB-3",
+              "self": "https://jira_url/rest/api/2/issue/10002"
+          },
+          "summary": "Summary of issue MYB-5"
+      },
+      "id": "10005",
+      "self": "https://jira_url/rest/api/2/issue/10005",
+      "key": "MYB-5"
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+      "fields": {
+          "parent": {
+              "fields": {
+                  "issuetype": {
+                      "avatarId": 10000,
+                      "description": "Functionality or a feature expressed as a user goal.",
+                      "iconUrl": "https://jira_url/secure/viewavatar?size=medium&avatarId=10000&avatarType=issuetype",
+                      "id": "10001",
+                      "name": "Story",
+                      "self": "https://jira_url/rest/api/2/issuetype/10001",
+                      "subtask": false
+                  },
+                  "priority": {
+                      "iconUrl": "https://jira_url/images/icons/priorities/medium.svg",
+                      "id": "3",
+                      "name": "Medium",
+                      "self": "https://jira_url/rest/api/2/priority/3"
+                  },
+                  "status": {
+                      "description": "",
+                      "iconUrl": "https://jira_url/",
+                      "id": "10000",
+                      "name": "To Do",
+                      "self": "https://jira_url/rest/api/2/status/10000",
+                      "statusCategory": {
+                          "colorName": "blue-gray",
+                          "id": 2,
+                          "key": "new",
+                          "name": "To Do",
+                          "self": "https://jira_url/rest/api/2/statuscategory/2"
+                      }
+                  },
+                  "summary": "Summary of the parent issue of MYB-4"
+              },
+              "id": "10002",
+              "key": "MYB-3",
+              "self": "https://jira_url/rest/api/2/issue/10002"
+          },
+          "summary": "Summary of issue MYB-4"
+      },
+      "id": "10004",
+      "self": "https://jira_url/rest/api/2/issue/10004",
+      "key": "MYB-4"
+    }
+  ]
+}

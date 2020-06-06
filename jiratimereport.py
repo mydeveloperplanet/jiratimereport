@@ -8,6 +8,7 @@ import requests
 import xlsxwriter as xlsxwriter
 from requests.auth import HTTPBasicAuth
 
+from issue import Issue
 from worklog import WorkLog
 
 CSV_FILE_NAME = "jira-time-report.csv"
@@ -94,7 +95,7 @@ def get_updated_issues(jira_url, user_name, api_token, project, from_date, to_da
         query = {
             'jql': 'project = "' + project + '" and timeSpent is not null and worklogDate >= "' + from_date +
                    '"' + ' and worklogDate < "' + convert_to_date(to_date).strftime("%Y-%m-%d") + '"',
-            'fields': 'id,key',
+            'fields': 'id,key,summary,parent',
             'startAt': str(start_at)
         }
 
@@ -112,6 +113,23 @@ def get_updated_issues(jira_url, user_name, api_token, project, from_date, to_da
             break
 
     return issues_json
+
+
+def convert_json_to_issues(response_json):
+    """
+    Convert JSON issues into Issue objects
+    :param response_json: the JSON text as received from Jira
+    :return: a list of Issues
+    """
+    issues = []
+    for issue_json in response_json['issues']:
+        issues.append(Issue(int(issue_json['id']),
+                            issue_json['key'],
+                            issue_json['fields']['summary'],
+                            issue_json['fields']['parent']['key'],
+                            issue_json['fields']['parent']['fields']['summary']))
+
+    return issues
 
 
 def get_work_logs(jira_url, user_name, api_token, from_date, to_date, ssl_certificate, issues_json):
