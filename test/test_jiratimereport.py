@@ -1,3 +1,4 @@
+import filecmp
 import unittest
 import requests_mock
 import jiratimereport
@@ -100,6 +101,15 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(work_logs[0], WorkLog("MYB-5", datetime(2020, 1, 18), 3600, "John Doe"))
         self.assertEqual(work_logs[1], WorkLog("MYB-5", datetime(2020, 1, 18), 5400, "John Doe"))
         self.assertEqual(work_logs[2], WorkLog("MYB-5", datetime(2020, 1, 12), 3600, "John Doe"))
+
+    def test_csv_output(self):
+        work_logs = [WorkLog("MYB-7", datetime(2020, 1, 20), 3600, "René Doe"),
+                     WorkLog("MYB-5", datetime(2020, 1, 18), 3600, "John Doe"),
+                     WorkLog("MYB-5", datetime(2020, 1, 18), 5400, "John Doe"),
+                     WorkLog("MYB-5", datetime(2020, 1, 12), 3600, "John Doe")]
+        jiratimereport.process_work_logs("csv", work_logs)
+
+        self.assertTrue(filecmp.cmp('jira-time-report.csv', 'csv_output.csv'))
 
 
 if __name__ == '__main__':
