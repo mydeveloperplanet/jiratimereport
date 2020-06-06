@@ -32,17 +32,16 @@ class MyTestCase(unittest.TestCase):
         with open("issues_one_page.json", "r") as issues_file:
             mock_response = issues_file.read()
 
-        expected_result = [
-            {'expand': 'operations,versionedRepresentations,editmeta,changelog,renderedFields', 'id': '10005',
-             'self': 'https://jira_url/rest/api/2/issue/10005', 'key': 'MYB-5'},
-            {'expand': 'operations,versionedRepresentations,editmeta,changelog,renderedFields', 'id': '10004',
-             'self': 'https://jira_url/rest/api/2/issue/10004', 'key': 'MYB-4'}]
-
         with requests_mock.Mocker() as m:
             m.register_uri('GET', '/rest/api/2/search', text=mock_response)
-            response = jiratimereport.get_updated_issues("https://jira_url", "user_name", "api_token",  "MYB",
-                                                         "2020-01-10", "2020-01-20", "")
-        self.assertEqual(expected_result, response)
+            issues = jiratimereport.get_updated_issues("https://jira_url", "user_name", "api_token",  "MYB",
+                                                       "2020-01-10", "2020-01-20", "")
+
+        issues_expected_result = [
+            Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5"),
+            Issue(10004, "MYB-4", "Summary of issue MYB-4", "MYB-3", "Summary of the parent issue of MYB-4")]
+
+        self.assertListEqual(issues_expected_result, issues, "Issues lists are unequal")
 
     def test_get_updated_issues_multiple_pages(self):
         """
@@ -54,21 +53,18 @@ class MyTestCase(unittest.TestCase):
         with open("issues_multiple_second_page.json", "r") as issues_second_file:
             mock_response_second_page = issues_second_file.read()
 
-        expected_result = [
-            {'expand': 'operations,versionedRepresentations,editmeta,changelog,renderedFields', 'id': '10005',
-             'self': 'https://jira_url/rest/api/2/issue/10005', 'key': 'MYB-5'},
-            {'expand': 'operations,versionedRepresentations,editmeta,changelog,renderedFields', 'id': '10004',
-             'self': 'https://jira_url/rest/api/2/issue/10004', 'key': 'MYB-4'},
-            {'expand': 'operations,versionedRepresentations,editmeta,changelog,renderedFields', 'id': '10006',
-             'self': 'https://jira_url/rest/api/2/issue/10006', 'key': 'MYB-6'}]
-
         with requests_mock.Mocker() as m:
             m.register_uri('GET', '/rest/api/2/search', [{'text': mock_response_first_page},
                                                          {'text': mock_response_second_page}])
-            response = jiratimereport.get_updated_issues("https://jira_url", "user_name", "api_token",  "MYB",
-                                                         "2020-01-10", "2020-01-20", "")
+            issues = jiratimereport.get_updated_issues("https://jira_url", "user_name", "api_token",  "MYB",
+                                                       "2020-01-10", "2020-01-20", "")
 
-        self.assertEqual(expected_result, response)
+        issues_expected_result = [
+            Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5"),
+            Issue(10004, "MYB-4", "Summary of issue MYB-4", "MYB-3", "Summary of the parent issue of MYB-4"),
+            Issue(10006, "MYB-6", "Summary of issue MYB-6", "MYB-3", "Summary of the parent issue of MYB-6")]
+
+        self.assertListEqual(issues_expected_result, issues, "Issues lists are unequal")
 
     def test_get_work_logs_one_page(self):
         """

@@ -84,10 +84,10 @@ def get_updated_issues(jira_url, user_name, api_token, project, from_date, to_da
     :param from_date The date to start the time report, format yyyy-mm-dd
     :param to_date The date to end the time report (the end date is inclusive), format yyyy-mm-dd
     :param ssl_certificate The location of the SSL certificate, needed in case of self-signed certificates
-    :return: a list of issues in json format (as retrieved from the Jira API)
+    :return: a list of issues
     """
 
-    issues_json = []
+    issues = []
     start_at = 0
 
     while True:
@@ -101,7 +101,7 @@ def get_updated_issues(jira_url, user_name, api_token, project, from_date, to_da
 
         response = get_request(jira_url, user_name, api_token, ssl_certificate, "/rest/api/2/search", query)
         response_json = json.loads(response.text)
-        issues_json.extend(response_json['issues'])
+        issues.extend(convert_json_to_issues(response_json))
 
         # Verify whether it is necessary to invoke the API request again because of pagination
         total_number_of_issues = int(response_json['total'])
@@ -112,7 +112,7 @@ def get_updated_issues(jira_url, user_name, api_token, project, from_date, to_da
         else:
             break
 
-    return issues_json
+    return issues
 
 
 def convert_json_to_issues(response_json):
