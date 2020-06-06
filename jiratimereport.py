@@ -132,7 +132,7 @@ def convert_json_to_issues(response_json):
     return issues
 
 
-def get_work_logs(jira_url, user_name, api_token, from_date, to_date, ssl_certificate, issues_json):
+def get_work_logs(jira_url, user_name, api_token, from_date, to_date, ssl_certificate, issues):
     """Retrieve the work logs from Jira
 
     All work logs from the list of issues are retrieved. Only the work logs which have been started between the from and
@@ -144,21 +144,21 @@ def get_work_logs(jira_url, user_name, api_token, from_date, to_date, ssl_certif
     :param from_date The date to start the time report, format yyyy-mm-dd
     :param to_date The date to end the time report (the end date is inclusive), format yyyy-mm-dd
     :param ssl_certificate The location of the SSL certificate, needed in case of self-signed certificates
-    :param issues_json: a list of issues in json format (as retrieved from the Jira API)
+    :param issues: a list of issues
     :return: the list of work logs which has been requested
     """
     work_logs = []
     from_date = datetime.strptime(from_date, "%Y-%m-%d")
     to_date = convert_to_date(to_date)
 
-    for issue_json in issues_json:
+    for issue in issues:
         start_at = 0
         while True:
             params = {
                 'startAt': str(start_at)
             }
 
-            url = "/rest/api/2/issue/" + issue_json['key'] + "/worklog/"
+            url = "/rest/api/2/issue/" + issue.key + "/worklog/"
             response = get_request(jira_url, user_name, api_token, ssl_certificate, url, params)
             response_json = json.loads(response.text)
             work_logs_json = response_json['worklogs']
@@ -168,7 +168,7 @@ def get_work_logs(jira_url, user_name, api_token, from_date, to_date, ssl_certif
                 started_date = datetime.strptime(started[0:10], "%Y-%m-%d")
                 if from_date <= started_date < to_date:
                     author_json = work_log_json['updateAuthor']
-                    work_logs.append(WorkLog(issue_json['key'],
+                    work_logs.append(WorkLog(issue.key,
                                              started_date,
                                              int(work_log_json['timeSpentSeconds']),
                                              author_json['displayName']))
@@ -279,10 +279,10 @@ def main():
                         help='The location of the SSL certificate, needed in case of self-signed certificates')
     args = parser.parse_args()
 
-    issues_json = get_updated_issues(args.jira_url, args.user_name, args.api_token, args.project, args.from_date,
-                                     args.to_date, args.ssl_certificate)
+    issues = get_updated_issues(args.jira_url, args.user_name, args.api_token, args.project, args.from_date,
+                                args.to_date, args.ssl_certificate)
     work_logs = get_work_logs(args.jira_url, args.user_name, args.api_token, args.from_date, args.to_date,
-                              args.ssl_certificate, issues_json)
+                              args.ssl_certificate, issues)
     process_work_logs(args.output, work_logs)
 
 

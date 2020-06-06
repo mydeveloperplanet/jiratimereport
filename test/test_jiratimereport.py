@@ -34,7 +34,7 @@ class MyTestCase(unittest.TestCase):
 
         with requests_mock.Mocker() as m:
             m.register_uri('GET', '/rest/api/2/search', text=mock_response)
-            issues = jiratimereport.get_updated_issues("https://jira_url", "user_name", "api_token",  "MYB",
+            issues = jiratimereport.get_updated_issues("https://jira_url", "user_name", "api_token", "MYB",
                                                        "2020-01-10", "2020-01-20", "")
 
         issues_expected_result = [
@@ -56,7 +56,7 @@ class MyTestCase(unittest.TestCase):
         with requests_mock.Mocker() as m:
             m.register_uri('GET', '/rest/api/2/search', [{'text': mock_response_first_page},
                                                          {'text': mock_response_second_page}])
-            issues = jiratimereport.get_updated_issues("https://jira_url", "user_name", "api_token",  "MYB",
+            issues = jiratimereport.get_updated_issues("https://jira_url", "user_name", "api_token", "MYB",
                                                        "2020-01-10", "2020-01-20", "")
 
         issues_expected_result = [
@@ -76,17 +76,14 @@ class MyTestCase(unittest.TestCase):
         with open("work_logs_second_issue_one_page.json", "r") as second_issue_file:
             mock_response_second_issue = second_issue_file.read()
 
-        issues_json = [
-            {'expand': 'operations,versionedRepresentations,editmeta,changelog,renderedFields', 'id': '10005',
-             'self': 'https://jira_url/rest/api/2/issue/10005', 'key': 'MYB-5'},
-            {'expand': 'operations,versionedRepresentations,editmeta,changelog,renderedFields', 'id': '10004',
-             'self': 'https://jira_url/rest/api/2/issue/10004', 'key': 'MYB-4'}]
+        issues = [Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5"),
+                  Issue(10004, "MYB-4", "Summary of issue MYB-4", "MYB-3", "Summary of the parent issue of MYB-4")]
 
         with requests_mock.Mocker() as m:
             m.register_uri('GET', '/rest/api/2/issue/MYB-5/worklog/', text=mock_response_first_issue)
             m.register_uri('GET', '/rest/api/2/issue/MYB-4/worklog/', text=mock_response_second_issue)
             work_logs = jiratimereport.get_work_logs("https://jira_url", "user_name", "api_token",
-                                                     "2020-01-10", "2020-01-20", "", issues_json)
+                                                     "2020-01-10", "2020-01-20", "", issues)
 
         work_logs_expected_result = [WorkLog("MYB-5", datetime(2020, 1, 18), 3600, "John Doe"),
                                      WorkLog("MYB-5", datetime(2020, 1, 18), 5400, "John Doe"),
@@ -104,15 +101,13 @@ class MyTestCase(unittest.TestCase):
         with open("work_logs_multiple_second_page.json", "r") as issues_second_file:
             mock_response_second_page = issues_second_file.read()
 
-        issues_json = [
-            {'expand': 'operations,versionedRepresentations,editmeta,changelog,renderedFields', 'id': '10005',
-             'self': 'https://jira_url/rest/api/2/issue/10005', 'key': 'MYB-5'}]
+        issues = [Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5")]
 
         with requests_mock.Mocker() as m:
             m.register_uri('GET', '/rest/api/2/issue/MYB-5/worklog/', [{'text': mock_response_first_page},
                                                                        {'text': mock_response_second_page}])
             work_logs = jiratimereport.get_work_logs("https://jira_url", "user_name", "api_token",
-                                                     "2020-01-10", "2020-01-20", "", issues_json)
+                                                     "2020-01-10", "2020-01-20", "", issues)
 
         work_logs_expected_result = [WorkLog("MYB-5", datetime(2020, 1, 18), 3600, "John Doe"),
                                      WorkLog("MYB-5", datetime(2020, 1, 18), 5400, "John Doe"),
