@@ -1,4 +1,5 @@
 import argparse
+import csv
 from datetime import datetime, timedelta
 import json
 from operator import attrgetter
@@ -183,10 +184,17 @@ def output_to_csv(work_logs):
 
     :param work_logs: the list of work logs which must be printed
     """
-    with open(CSV_FILE_NAME, "w") as file:
+    with open(CSV_FILE_NAME, 'w', newline='') as csvfile:
+        fieldnames = ['author', 'date', 'issue', 'time_spent']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, dialect=csv.unix_dialect)
+
+        writer.writeheader()
+
         for work_log in work_logs:
-            file.write(work_log.author + ";" + work_log.started.strftime('%Y-%m-%d') + ";" + work_log.issue_key + ";" +
-                       str(timedelta(seconds=work_log.time_spent)) + "\n")
+            writer.writerow({'author': work_log.author,
+                             'date': work_log.started.strftime('%Y-%m-%d'),
+                             'issue': work_log.issue_key,
+                             'time_spent': str(timedelta(seconds=work_log.time_spent))})
 
 
 def output_to_excel(work_logs):
