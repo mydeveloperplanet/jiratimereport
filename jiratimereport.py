@@ -185,39 +185,52 @@ def get_work_logs(jira_url, user_name, api_token, from_date, to_date, ssl_certif
     return work_logs
 
 
-def output_to_console(work_logs):
+def output_to_console(issues, work_logs):
     """Print the work logs to the console
 
+    :param issues: the list of issues which must be printed
     :param work_logs: the list of work logs which must be printed
     """
     print("\nThe Jira time report")
     print("====================")
     for work_log in work_logs:
-        print(work_log.author + ";" + work_log.started.strftime('%Y-%m-%d') + ";" + work_log.issue_key + ";" +
+        work_log_issue = next((issue for issue in issues if issue.key == work_log.issue_key), None)
+        print(work_log.author + ";" +
+              work_log.started.strftime('%Y-%m-%d') + ";" +
+              work_log.issue_key + ";" +
+              work_log_issue.summary + ";" +
+              work_log_issue.parent_key + ";" +
+              work_log_issue.parent_summary + ";" +
               str(timedelta(seconds=work_log.time_spent)))
 
 
-def output_to_csv(work_logs):
+def output_to_csv(issues, work_logs):
     """Print the work logs to a CSV file
 
+    :param issues: the list of issues which must be printed
     :param work_logs: the list of work logs which must be printed
     """
     with open(CSV_FILE_NAME, 'w', newline='') as csvfile:
-        fieldnames = ['author', 'date', 'issue', 'time_spent']
+        fieldnames = ['author', 'date', 'issue', 'summary', 'parent', 'parent summary', 'time_spent']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames, dialect=csv.unix_dialect)
 
         writer.writeheader()
 
         for work_log in work_logs:
+            work_log_issue = next((issue for issue in issues if issue.key == work_log.issue_key), None)
             writer.writerow({'author': work_log.author,
                              'date': work_log.started.strftime('%Y-%m-%d'),
                              'issue': work_log.issue_key,
+                             'summary': work_log_issue.summary,
+                             'parent': work_log_issue.parent_key,
+                             'parent summary': work_log_issue.parent_summary,
                              'time_spent': str(timedelta(seconds=work_log.time_spent))})
 
 
-def output_to_excel(work_logs):
+def output_to_excel(issues, work_logs):
     """Print the work logs to an Excel file
 
+    :param issues: the list of issues which must be printed
     :param work_logs: the list of work logs which must be printed
     """
     with xlsxwriter.Workbook(EXCEL_FILE_NAME) as workbook:
@@ -225,30 +238,35 @@ def output_to_excel(work_logs):
         row = 0
 
         for work_log in work_logs:
+            work_log_issue = next((issue for issue in issues if issue.key == work_log.issue_key), None)
             worksheet.write(row, 0, work_log.author)
             worksheet.write(row, 1, work_log.started.strftime('%Y-%m-%d'))
             worksheet.write(row, 2, work_log.issue_key)
-            worksheet.write(row, 3, str(timedelta(seconds=work_log.time_spent)))
+            worksheet.write(row, 3, work_log_issue.summary)
+            worksheet.write(row, 4, work_log_issue.parent_key)
+            worksheet.write(row, 5, work_log_issue.parent_summary)
+            worksheet.write(row, 6, str(timedelta(seconds=work_log.time_spent)))
 
             row += 1
 
 
-def process_work_logs(output, work_logs):
+def process_work_logs(output, issues, work_logs):
     """Process the retrieved work logs from the Jira API
 
     The work logs are sorted and printed to the specified output format
 
     :param output: The output format
+    :param issues: the list of issues which must be printed
     :param work_logs: the list of work logs which must be printed
     """
     sorted_on_issue = sorted(work_logs, key=attrgetter('author', 'started', 'issue_key'))
 
     if output == "csv":
-        output_to_csv(sorted_on_issue)
+        output_to_csv(issues, sorted_on_issue)
     elif output == "excel":
-        output_to_excel(sorted_on_issue)
+        output_to_excel(issues, sorted_on_issue)
     else:
-        output_to_console(sorted_on_issue)
+        output_to_console(issues, sorted_on_issue)
 
 
 def main():
@@ -283,7 +301,7 @@ def main():
                                 args.to_date, args.ssl_certificate)
     work_logs = get_work_logs(args.jira_url, args.user_name, args.api_token, args.from_date, args.to_date,
                               args.ssl_certificate, issues)
-    process_work_logs(args.output, work_logs)
+    process_work_logs(args.output, issues, work_logs)
 
 
 if __name__ == "__main__":

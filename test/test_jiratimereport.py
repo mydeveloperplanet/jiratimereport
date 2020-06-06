@@ -123,7 +123,11 @@ class MyTestCase(unittest.TestCase):
                      WorkLog("MYB-5", datetime(2020, 1, 18), 3600, "John Doe"),
                      WorkLog("MYB-5", datetime(2020, 1, 18), 5400, "John Doe"),
                      WorkLog("MYB-5", datetime(2020, 1, 12), 3600, "John Doe")]
-        jiratimereport.process_work_logs("csv", work_logs)
+
+        issues = [Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5"),
+                  Issue(10007, "MYB-7", "Summary of issue MYB-7", "MYB-3", "Summary of the parent issue of MYB-7")]
+
+        jiratimereport.process_work_logs("csv", issues, work_logs)
 
         self.assertTrue(filecmp.cmp('csv_output.csv', 'jira-time-report.csv'))
 
