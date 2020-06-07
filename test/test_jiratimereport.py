@@ -1,5 +1,6 @@
 import filecmp
 import json
+import sys
 import unittest
 import requests_mock
 import jiratimereport
@@ -132,9 +133,9 @@ class MyTestCase(unittest.TestCase):
 
         self.assertListEqual(work_logs_expected_result, work_logs, "Work Log lists are unequal")
 
-    def test_csv_output(self):
+    def test_output(self):
         """
-        Test the CSV output including UTF-16 characters and issue without parent issue
+        Test the different outputs including UTF-16 characters and issue without parent issue
         """
         work_logs = [WorkLog("MYB-7", datetime(2020, 1, 20), 3600, "René Doe"),
                      WorkLog("MYB-5", datetime(2020, 1, 18), 3600, "John Doe"),
@@ -144,9 +145,17 @@ class MyTestCase(unittest.TestCase):
         issues = [Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5"),
                   Issue(10007, "MYB-7", "Summary of issue MYB-7", None, None)]
 
-        jiratimereport.process_work_logs("csv", issues, work_logs)
+        stdout = sys.stdout
+        with open('jira-time-report-console.txt', 'w') as sys.stdout:
+            jiratimereport.process_work_logs("console", issues, work_logs)
+        sys.stdout = stdout
+        self.assertTrue(filecmp.cmp('console_output.txt', 'jira-time-report-console.txt'))
 
+        jiratimereport.process_work_logs("csv", issues, work_logs)
         self.assertTrue(filecmp.cmp('csv_output.csv', 'jira-time-report.csv'))
+
+        jiratimereport.process_work_logs("excel", issues, work_logs)
+        self.assertTrue(filecmp.cmp('excel_output.xlsx', 'excel_output.xlsx'))
 
 
 if __name__ == '__main__':
