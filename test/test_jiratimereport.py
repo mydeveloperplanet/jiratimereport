@@ -10,6 +10,23 @@ from datetime import datetime
 
 class MyTestCase(unittest.TestCase):
 
+    def test_get_updated_issues_without_parent(self):
+        """
+        Test when issues do not have a parent issue
+        """
+        with open("issues_without_parent.json", "r") as issues_file:
+            mock_response = issues_file.read()
+
+        with requests_mock.Mocker() as m:
+            m.register_uri('GET', '/rest/api/2/search', text=mock_response)
+            issues = jiratimereport.get_updated_issues("https://jira_url", "user_name", "api_token", "MYB",
+                                                       "2020-01-10", "2020-01-20", "")
+
+        issues_expected_result = [
+            Issue(10005, "MYB-5", "Summary of issue MYB-5", None, None)]
+
+        self.assertListEqual(issues_expected_result, issues, "Issues lists are unequal")
+
     def test_convert_json_to_issues(self):
         """
         Test the conversion of json issues to object issues
@@ -117,7 +134,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_csv_output(self):
         """
-        Test the CSV output including UTF-16 characters
+        Test the CSV output including UTF-16 characters and issue without parent issue
         """
         work_logs = [WorkLog("MYB-7", datetime(2020, 1, 20), 3600, "René Doe"),
                      WorkLog("MYB-5", datetime(2020, 1, 18), 3600, "John Doe"),
@@ -125,7 +142,7 @@ class MyTestCase(unittest.TestCase):
                      WorkLog("MYB-5", datetime(2020, 1, 12), 3600, "John Doe")]
 
         issues = [Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5"),
-                  Issue(10007, "MYB-7", "Summary of issue MYB-7", "MYB-3", "Summary of the parent issue of MYB-7")]
+                  Issue(10007, "MYB-7", "Summary of issue MYB-7", None, None)]
 
         jiratimereport.process_work_logs("csv", issues, work_logs)
 

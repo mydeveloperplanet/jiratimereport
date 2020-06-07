@@ -126,8 +126,8 @@ def convert_json_to_issues(response_json):
         issues.append(Issue(int(issue_json['id']),
                             issue_json['key'],
                             issue_json['fields']['summary'],
-                            issue_json['fields']['parent']['key'],
-                            issue_json['fields']['parent']['fields']['summary']))
+                            issue_json['fields']['parent']['key'] if 'parent' in issue_json['fields'] else None,
+                            issue_json['fields']['parent']['fields']['summary'] if 'parent' in issue_json['fields'] else None))
 
     return issues
 
