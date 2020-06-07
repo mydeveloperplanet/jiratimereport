@@ -198,10 +198,10 @@ def output_to_console(issues, work_logs):
         print(work_log.author + ";" +
               work_log.started.strftime('%Y-%m-%d') + ";" +
               work_log.issue_key + ";" +
+              str(timedelta(seconds=work_log.time_spent)) + ";" +
               work_log_issue.summary + ";" +
               work_log_issue.parent_key + ";" +
-              work_log_issue.parent_summary + ";" +
-              str(timedelta(seconds=work_log.time_spent)))
+              work_log_issue.parent_summary)
 
 
 def output_to_csv(issues, work_logs):
@@ -211,7 +211,7 @@ def output_to_csv(issues, work_logs):
     :param work_logs: the list of work logs which must be printed
     """
     with open(CSV_FILE_NAME, 'w', newline='') as csvfile:
-        fieldnames = ['author', 'date', 'issue', 'summary', 'parent', 'parent summary', 'time_spent']
+        fieldnames = ['author', 'date', 'issue', 'time_spent', 'summary', 'parent', 'parent summary']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames, dialect=csv.unix_dialect)
 
         writer.writeheader()
@@ -221,10 +221,10 @@ def output_to_csv(issues, work_logs):
             writer.writerow({'author': work_log.author,
                              'date': work_log.started.strftime('%Y-%m-%d'),
                              'issue': work_log.issue_key,
+                             'time_spent': str(timedelta(seconds=work_log.time_spent)),
                              'summary': work_log_issue.summary,
                              'parent': work_log_issue.parent_key,
-                             'parent summary': work_log_issue.parent_summary,
-                             'time_spent': str(timedelta(seconds=work_log.time_spent))})
+                             'parent summary': work_log_issue.parent_summary})
 
 
 def output_to_excel(issues, work_logs):
@@ -242,10 +242,10 @@ def output_to_excel(issues, work_logs):
             worksheet.write(row, 0, work_log.author)
             worksheet.write(row, 1, work_log.started.strftime('%Y-%m-%d'))
             worksheet.write(row, 2, work_log.issue_key)
-            worksheet.write(row, 3, work_log_issue.summary)
-            worksheet.write(row, 4, work_log_issue.parent_key)
-            worksheet.write(row, 5, work_log_issue.parent_summary)
-            worksheet.write(row, 6, str(timedelta(seconds=work_log.time_spent)))
+            worksheet.write(row, 3, str(timedelta(seconds=work_log.time_spent)))
+            worksheet.write(row, 4, work_log_issue.summary)
+            worksheet.write(row, 5, work_log_issue.parent_key)
+            worksheet.write(row, 6, work_log_issue.parent_summary)
 
             row += 1
 
