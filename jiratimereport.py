@@ -200,8 +200,8 @@ def output_to_console(issues, work_logs):
               work_log.issue_key + ";" +
               str(timedelta(seconds=work_log.time_spent)) + ";" +
               work_log_issue.summary + ";" +
-              work_log_issue.parent_key + ";" +
-              work_log_issue.parent_summary)
+              str(work_log_issue.parent_key) + ";" +
+              str(work_log_issue.parent_summary))
 
 
 def output_to_csv(issues, work_logs):
