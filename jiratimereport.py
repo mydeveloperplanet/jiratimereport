@@ -95,7 +95,7 @@ def get_updated_issues(jira_url, user_name, api_token, project, from_date, to_da
         query = {
             'jql': 'project = "' + project + '" and timeSpent is not null and worklogDate >= "' + from_date +
                    '"' + ' and worklogDate < "' + convert_to_date(to_date).strftime("%Y-%m-%d") + '"',
-            'fields': 'id,key,summary,parent',
+            'fields': 'id,key,summary,parent,timeoriginalestimate,timespent',
             'startAt': str(start_at)
         }
 
@@ -127,7 +127,9 @@ def convert_json_to_issues(response_json):
                             issue_json['key'],
                             issue_json['fields']['summary'],
                             issue_json['fields']['parent']['key'] if 'parent' in issue_json['fields'] else None,
-                            issue_json['fields']['parent']['fields']['summary'] if 'parent' in issue_json['fields'] else None))
+                            issue_json['fields']['parent']['fields']['summary'] if 'parent' in issue_json['fields'] else None,
+                            issue_json['fields']['timeoriginalestimate'],
+                            issue_json['fields']['timespent']))
 
     return issues
 

@@ -7,7 +7,9 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "fields": {
-          "summary": "Summary of issue MYB-5"
+          "summary": "Summary of issue MYB-5",
+          "timeoriginalestimate": 3600,
+          "timespent": 900
       },
       "id": "10005",
       "self": "https://jira_url/rest/api/2/issue/10005",
