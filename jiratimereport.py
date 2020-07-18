@@ -201,9 +201,11 @@ def output_to_console(issues, work_logs):
               work_log.started.strftime('%Y-%m-%d') + ";" +
               work_log.issue_key + ";" +
               str(timedelta(seconds=work_log.time_spent)) + ";" +
+              (str(timedelta(seconds=work_log_issue.original_estimate)) if work_log_issue.original_estimate is not None else "") + ";" +
+              (str(timedelta(seconds=work_log_issue.time_spent)) if work_log_issue.time_spent is not None else "") + ";" +
               work_log_issue.summary + ";" +
-              str(work_log_issue.parent_key) + ";" +
-              str(work_log_issue.parent_summary))
+              (str(work_log_issue.parent_key) if work_log_issue.parent_key is not None else "") + ";" +
+              (str(work_log_issue.parent_summary) if work_log_issue.parent_summary is not None else ""))
 
 
 def output_to_csv(issues, work_logs):
@@ -213,7 +215,7 @@ def output_to_csv(issues, work_logs):
     :param work_logs: the list of work logs which must be printed
     """
     with open(CSV_FILE_NAME, 'w', newline='') as csvfile:
-        fieldnames = ['author', 'date', 'issue', 'time_spent', 'summary', 'parent', 'parent summary']
+        fieldnames = ['author', 'date', 'issue', 'time_spent', 'original_estimate', 'total_time_spent', 'summary', 'parent', 'parent summary']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames, dialect=csv.unix_dialect)
 
         writer.writeheader()
@@ -224,6 +226,8 @@ def output_to_csv(issues, work_logs):
                              'date': work_log.started.strftime('%Y-%m-%d'),
                              'issue': work_log.issue_key,
                              'time_spent': str(timedelta(seconds=work_log.time_spent)),
+                             'original_estimate': str(timedelta(seconds=work_log_issue.original_estimate)) if work_log_issue.original_estimate is not None else None,
+                             'total_time_spent': str(timedelta(seconds=work_log_issue.time_spent)) if work_log_issue.time_spent is not None else None,
                              'summary': work_log_issue.summary,
                              'parent': work_log_issue.parent_key,
                              'parent summary': work_log_issue.parent_summary})
@@ -245,9 +249,11 @@ def output_to_excel(issues, work_logs):
             worksheet.write(row, 1, work_log.started.strftime('%Y-%m-%d'))
             worksheet.write(row, 2, work_log.issue_key)
             worksheet.write(row, 3, str(timedelta(seconds=work_log.time_spent)))
-            worksheet.write(row, 4, work_log_issue.summary)
-            worksheet.write(row, 5, work_log_issue.parent_key)
-            worksheet.write(row, 6, work_log_issue.parent_summary)
+            worksheet.write(row, 4, str(timedelta(seconds=work_log_issue.original_estimate)) if work_log_issue.original_estimate is not None else None)
+            worksheet.write(row, 5, str(timedelta(seconds=work_log_issue.time_spent)) if work_log_issue.time_spent is not None else None)
+            worksheet.write(row, 6, work_log_issue.summary)
+            worksheet.write(row, 7, work_log_issue.parent_key)
+            worksheet.write(row, 8, work_log_issue.parent_summary)
 
             row += 1
 
