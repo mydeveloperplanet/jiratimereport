@@ -187,6 +187,16 @@ def get_work_logs(jira_url, user_name, api_token, from_date, to_date, ssl_certif
     return work_logs
 
 
+def format_optional_time_field(field, empty_field):
+    """
+    Formats the given time field
+    :param field: the time field in seconds
+    :param empty_field: the return value when the time field is empty
+    :return: The formatted time field as a datetime
+    """
+    return str(timedelta(seconds=field)) if field is not None else empty_field
+
+
 def output_to_console(issues, work_logs):
     """Print the work logs to the console
 
@@ -201,8 +211,8 @@ def output_to_console(issues, work_logs):
               work_log.started.strftime('%Y-%m-%d') + ";" +
               work_log.issue_key + ";" +
               str(timedelta(seconds=work_log.time_spent)) + ";" +
-              (str(timedelta(seconds=work_log_issue.original_estimate)) if work_log_issue.original_estimate is not None else "") + ";" +
-              (str(timedelta(seconds=work_log_issue.time_spent)) if work_log_issue.time_spent is not None else "") + ";" +
+              format_optional_time_field(work_log_issue.original_estimate, "") + ";" +
+              format_optional_time_field(work_log_issue.time_spent, "") + ";" +
               work_log_issue.summary + ";" +
               (str(work_log_issue.parent_key) if work_log_issue.parent_key is not None else "") + ";" +
               (str(work_log_issue.parent_summary) if work_log_issue.parent_summary is not None else ""))
@@ -226,8 +236,8 @@ def output_to_csv(issues, work_logs):
                              'date': work_log.started.strftime('%Y-%m-%d'),
                              'issue': work_log.issue_key,
                              'time_spent': str(timedelta(seconds=work_log.time_spent)),
-                             'original_estimate': str(timedelta(seconds=work_log_issue.original_estimate)) if work_log_issue.original_estimate is not None else None,
-                             'total_time_spent': str(timedelta(seconds=work_log_issue.time_spent)) if work_log_issue.time_spent is not None else None,
+                             'original_estimate': format_optional_time_field(work_log_issue.original_estimate, None),
+                             'total_time_spent': format_optional_time_field(work_log_issue.time_spent, None),
                              'summary': work_log_issue.summary,
                              'parent': work_log_issue.parent_key,
                              'parent summary': work_log_issue.parent_summary})
@@ -249,8 +259,8 @@ def output_to_excel(issues, work_logs):
             worksheet.write(row, 1, work_log.started.strftime('%Y-%m-%d'))
             worksheet.write(row, 2, work_log.issue_key)
             worksheet.write(row, 3, str(timedelta(seconds=work_log.time_spent)))
-            worksheet.write(row, 4, str(timedelta(seconds=work_log_issue.original_estimate)) if work_log_issue.original_estimate is not None else None)
-            worksheet.write(row, 5, str(timedelta(seconds=work_log_issue.time_spent)) if work_log_issue.time_spent is not None else None)
+            worksheet.write(row, 4, format_optional_time_field(work_log_issue.original_estimate, None))
+            worksheet.write(row, 5, format_optional_time_field(work_log_issue.time_spent, None))
             worksheet.write(row, 6, work_log_issue.summary)
             worksheet.write(row, 7, work_log_issue.parent_key)
             worksheet.write(row, 8, work_log_issue.parent_summary)
