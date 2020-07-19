@@ -9,10 +9,18 @@ class Issue:
         self.parent_summary = parent_summary
         self.original_estimate = original_estimate
         self.time_spent = time_spent
+        self.issue_start_date = None
+        self.issue_end_date = None
 
     def __eq__(self, other):
         try:
-            return (self.issue_id, self.key, self.summary, self. parent_key, self.parent_summary, self.original_estimate, self.time_spent) == \
-                   (other.issue_id, other.key, other.summary, other.parent_key, other.parent_summary, other.original_estimate, other.time_spent)
+            return (self.issue_id, self.key, self.summary, self. parent_key, self.parent_summary, self.original_estimate, self.time_spent, self.issue_start_date, self.issue_end_date) == \
+                   (other.issue_id, other.key, other.summary, other.parent_key, other.parent_summary, other.original_estimate, other.time_spent, other.issue_start_date, other.issue_end_date)
         except AttributeError:
             return NotImplemented
+
+    def set_issue_start_date(self, issue_start_date):
+        self.issue_start_date = issue_start_date
+
+    def set_issue_end_date(self, issue_end_date):
+        self.issue_end_date = issue_end_date

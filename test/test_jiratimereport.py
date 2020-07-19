@@ -84,6 +84,37 @@ class MyTestCase(unittest.TestCase):
 
         self.assertListEqual(issues_expected_result, issues, "Issues lists are unequal")
 
+    def test_get_changelogs_one_page(self):
+        """
+        Test the single page response when retrieving Jira changelogs
+        """
+        with open("changelogs_first_issue_one_page.json", "r") as first_issue_file:
+            mock_response_first_issue = first_issue_file.read()
+
+        with open("changelogs_second_issue_one_page.json", "r") as second_issue_file:
+            mock_response_second_issue = second_issue_file.read()
+
+        issues = [Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900),
+                  Issue(10004, "MYB-4", "Summary of issue MYB-4", "MYB-3", "Summary of the parent issue of MYB-4", 7200, 600)]
+
+        with requests_mock.Mocker() as m:
+            m.register_uri('GET', '/rest/api/2/issue/MYB-5/changelog/', text=mock_response_first_issue)
+            m.register_uri('GET', '/rest/api/2/issue/MYB-4/changelog/', text=mock_response_second_issue)
+            jiratimereport.get_issue_time_information("https://jira_url", "user_name", "api_token", "", issues)
+
+        # First start date is a work log
+        issue_myb_5 = Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900)
+        issue_myb_5.set_issue_start_date(datetime(2020, 1, 10))
+        # First start date is based on status
+        issue_myb_4 = Issue(10004, "MYB-4", "Summary of issue MYB-4", "MYB-3", "Summary of the parent issue of MYB-4", 7200, 600)
+        issue_myb_4.set_issue_start_date(datetime(2020, 1, 12))
+        issue_myb_4.set_issue_end_date(datetime(2020, 1, 15))
+
+        issues_expected_result = [issue_myb_5,
+                                  issue_myb_4]
+
+        self.assertListEqual(issues_expected_result, issues, "Issue lists are unequal")
+
     def test_get_work_logs_one_page(self):
         """
         Test the single page response when retrieving Jira work logs

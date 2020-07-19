@@ -134,6 +134,52 @@ def convert_json_to_issues(response_json):
     return issues
 
 
+def get_issue_time_information(jira_url, user_name, api_token, ssl_certificate, issues):
+    for issue in issues:
+        start_at = 0
+        while True:
+            url = "/rest/api/2/issue/" + issue.key + "/changelog/"
+            response = get_request(jira_url, user_name, api_token, ssl_certificate, url, None)
+            response_json = json.loads(response.text)
+            #print(json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": ")))
+
+            changelogs_json = response_json['values']
+            found_start_date = False
+            found_end_date = False
+
+            for changelog_json in changelogs_json:
+                created = changelog_json['created']
+                items_json = changelog_json['items']
+                for item_json in items_json:
+                    field = item_json['field']
+                    if not found_start_date:
+                        if field == "WorklogId":
+                            found_start_date = True
+                            issue.set_issue_start_date(datetime.strptime(created[0:10], "%Y-%m-%d"))
+                        elif field == "status" and (item_json['toString'] != "To Do" or item_json['toString'] != "Done"):
+                            found_start_date = True
+                            issue.set_issue_start_date(datetime.strptime(created[0:10], "%Y-%m-%d"))
+                    if field == "status" and item_json['toString'] == "Done":
+                        found_end_date = True
+                        issue.set_issue_end_date(datetime.strptime(created[0:10], "%Y-%m-%d"))
+                        break
+
+                if found_start_date and found_end_date:
+                    break
+
+            if found_start_date and found_end_date:
+                break
+            else:
+                # Verify whether it is necessary to invoke the API request again because of pagination
+                total_number_of_issues = int(response_json['total'])
+                max_results = int(response_json['maxResults'])
+                max_number_of_issues_processed = start_at + max_results
+                if max_number_of_issues_processed < total_number_of_issues:
+                    start_at = max_number_of_issues_processed
+                else:
+                    break
+
+
 def get_work_logs(jira_url, user_name, api_token, from_date, to_date, ssl_certificate, issues):
     """Retrieve the work logs from Jira
 
@@ -317,6 +363,8 @@ def main():
 
     issues = get_updated_issues(args.jira_url, args.user_name, args.api_token, args.project, args.from_date,
                                 args.to_date, args.ssl_certificate)
+    get_issue_time_information(args.jira_url, args.user_name, args.api_token, args.from_date, args.to_date,
+                              args.ssl_certificate, issues)
     work_logs = get_work_logs(args.jira_url, args.user_name, args.api_token, args.from_date, args.to_date,
                               args.ssl_certificate, issues)
     process_work_logs(args.output, issues, work_logs)
