@@ -199,8 +199,13 @@ class MyTestCase(unittest.TestCase):
                      WorkLog("MYB-5", datetime(2020, 1, 18), 5400, "John Doe"),
                      WorkLog("MYB-5", datetime(2020, 1, 12), 3600, "John Doe")]
 
-        issues = [Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900),
-                  Issue(10007, "MYB-7", "Summary of issue MYB-7", None, None, None, None)]
+        issue_myb_5 = Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900)
+        issue_myb_5.set_issue_start_date(datetime(2020, 1, 10))
+        issue_myb_5.set_issue_end_date(datetime(2020, 1, 15))
+        issue_myb_7 = Issue(10007, "MYB-7", "Summary of issue MYB-7", None, None, None, None)
+
+        issues = [issue_myb_5,
+                  issue_myb_7]
 
         stdout = sys.stdout
         with open('jira-time-report-console.txt', 'w') as sys.stdout:

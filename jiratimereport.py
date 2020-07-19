@@ -135,6 +135,18 @@ def convert_json_to_issues(response_json):
 
 
 def get_issue_time_information(jira_url, user_name, api_token, ssl_certificate, issues):
+    """Retrieve the start and end date of an issue from Jira
+
+    All change logs from the list of issues are retrieved. All change logs are traversed.
+    The start date is determined based on the first occurence of a Work Log or state change.
+    The end date is determined as the date the issue is closed.
+
+    :param jira_url: The base Jira URL
+    :param user_name The user name to use for connecting to Jira
+    :param api_token The API token to use for connecting to Jira
+    :param ssl_certificate The location of the SSL certificate, needed in case of self-signed certificates
+    :param issues: a list of issues
+    """
     for issue in issues:
         start_at = 0
         found_start_date = False
@@ -144,7 +156,6 @@ def get_issue_time_information(jira_url, user_name, api_token, ssl_certificate, 
             url = "/rest/api/2/issue/" + issue.key + "/changelog/"
             response = get_request(jira_url, user_name, api_token, ssl_certificate, url, None)
             response_json = json.loads(response.text)
-            #print(json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": ")))
 
             changelogs_json = response_json['values']
 
@@ -244,6 +255,16 @@ def format_optional_time_field(field, empty_field):
     return str(timedelta(seconds=field)) if field is not None else empty_field
 
 
+def format_optional_date_field(field, empty_field):
+    """
+    Formats the given date field
+    :param field: the date field in seconds
+    :param empty_field: the return value when the date field is empty
+    :return: The formatted date field as a datetime
+    """
+    return field.strftime('%Y-%m-%d') if field is not None else empty_field
+
+
 def output_to_console(issues, work_logs):
     """Print the work logs to the console
 
@@ -260,6 +281,8 @@ def output_to_console(issues, work_logs):
               str(timedelta(seconds=work_log.time_spent)) + ";" +
               format_optional_time_field(work_log_issue.original_estimate, "") + ";" +
               format_optional_time_field(work_log_issue.time_spent, "") + ";" +
+              format_optional_date_field(work_log_issue.issue_start_date, "") + ";" +
+              format_optional_date_field(work_log_issue.issue_end_date, "") + ";" +
               work_log_issue.summary + ";" +
               (str(work_log_issue.parent_key) if work_log_issue.parent_key is not None else "") + ";" +
               (str(work_log_issue.parent_summary) if work_log_issue.parent_summary is not None else ""))
@@ -272,7 +295,7 @@ def output_to_csv(issues, work_logs):
     :param work_logs: the list of work logs which must be printed
     """
     with open(CSV_FILE_NAME, 'w', newline='') as csvfile:
-        fieldnames = ['author', 'date', 'issue', 'time_spent', 'original_estimate', 'total_time_spent', 'summary', 'parent', 'parent summary']
+        fieldnames = ['author', 'date', 'issue', 'time_spent', 'original_estimate', 'total_time_spent', 'issue_start_date', 'issue_end_date', 'summary', 'parent', 'parent summary']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames, dialect=csv.unix_dialect)
 
         writer.writeheader()
@@ -285,6 +308,8 @@ def output_to_csv(issues, work_logs):
                              'time_spent': str(timedelta(seconds=work_log.time_spent)),
                              'original_estimate': format_optional_time_field(work_log_issue.original_estimate, None),
                              'total_time_spent': format_optional_time_field(work_log_issue.time_spent, None),
+                             'issue_start_date': format_optional_date_field(work_log_issue.issue_start_date, None),
+                             'issue_end_date': format_optional_date_field(work_log_issue.issue_end_date, None),
                              'summary': work_log_issue.summary,
                              'parent': work_log_issue.parent_key,
                              'parent summary': work_log_issue.parent_summary})
@@ -308,9 +333,11 @@ def output_to_excel(issues, work_logs):
             worksheet.write(row, 3, str(timedelta(seconds=work_log.time_spent)))
             worksheet.write(row, 4, format_optional_time_field(work_log_issue.original_estimate, None))
             worksheet.write(row, 5, format_optional_time_field(work_log_issue.time_spent, None))
-            worksheet.write(row, 6, work_log_issue.summary)
-            worksheet.write(row, 7, work_log_issue.parent_key)
-            worksheet.write(row, 8, work_log_issue.parent_summary)
+            worksheet.write(row, 6, format_optional_date_field(work_log_issue.issue_start_date, None))
+            worksheet.write(row, 7, format_optional_date_field(work_log_issue.issue_end_date, None))
+            worksheet.write(row, 8, work_log_issue.summary)
+            worksheet.write(row, 9, work_log_issue.parent_key)
+            worksheet.write(row, 10, work_log_issue.parent_summary)
 
             row += 1
 
@@ -364,8 +391,7 @@ def main():
 
     issues = get_updated_issues(args.jira_url, args.user_name, args.api_token, args.project, args.from_date,
                                 args.to_date, args.ssl_certificate)
-    get_issue_time_information(args.jira_url, args.user_name, args.api_token, args.from_date, args.to_date,
-                              args.ssl_certificate, issues)
+    get_issue_time_information(args.jira_url, args.user_name, args.api_token, args.ssl_certificate, issues)
     work_logs = get_work_logs(args.jira_url, args.user_name, args.api_token, args.from_date, args.to_date,
                               args.ssl_certificate, issues)
     process_work_logs(args.output, issues, work_logs)
