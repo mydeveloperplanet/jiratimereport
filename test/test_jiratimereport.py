@@ -115,6 +115,32 @@ class MyTestCase(unittest.TestCase):
 
         self.assertListEqual(issues_expected_result, issues, "Issue lists are unequal")
 
+    def test_get_changelogs_multiple_pages(self):
+        """
+        Test the multiple pages response when retrieving Jira changelogs (pagination)
+        """
+        with open("changelogs_multiple_first_page.json", "r") as issues_first_file:
+            mock_response_first_page = issues_first_file.read()
+
+        with open("changelogs_multiple_second_page.json", "r") as issues_second_file:
+            mock_response_second_page = issues_second_file.read()
+
+        issues = [Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900)]
+
+        with requests_mock.Mocker() as m:
+            m.register_uri('GET', '/rest/api/2/issue/MYB-5/changelog/', [{'text': mock_response_first_page},
+                                                                         {'text': mock_response_second_page}])
+            jiratimereport.get_issue_time_information("https://jira_url", "user_name", "api_token", "", issues)
+
+        issue_myb_5 = Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5",
+                            3600, 900)
+        issue_myb_5.set_issue_start_date(datetime(2020, 1, 10))
+        issue_myb_5.set_issue_end_date(datetime(2020, 1, 15))
+
+        issues_expected_result = [issue_myb_5]
+
+        self.assertListEqual(issues_expected_result, issues, "Issue lists are unequal")
+
     def test_get_work_logs_one_page(self):
         """
         Test the single page response when retrieving Jira work logs
@@ -142,7 +168,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_get_work_logs_multiple_pages(self):
         """
-        Test the multiple pages response when retrieving Jira issues (pagination)
+        Test the multiple pages response when retrieving Jira work logs (pagination)
         """
         with open("work_logs_multiple_first_page.json", "r") as issues_first_file:
             mock_response_first_page = issues_first_file.read()

@@ -3,7 +3,7 @@
     "maxResults": 100,
     "self": "https://jira_url/rest/api/2/issue/MYB-5/changelog?maxResults=100&startAt=0",
     "startAt": 0,
-    "total": 9,
+    "total": 8,
     "values": [
         {
             "author": {

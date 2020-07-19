@@ -137,6 +137,9 @@ def convert_json_to_issues(response_json):
 def get_issue_time_information(jira_url, user_name, api_token, ssl_certificate, issues):
     for issue in issues:
         start_at = 0
+        found_start_date = False
+        found_end_date = False
+
         while True:
             url = "/rest/api/2/issue/" + issue.key + "/changelog/"
             response = get_request(jira_url, user_name, api_token, ssl_certificate, url, None)
@@ -144,8 +147,6 @@ def get_issue_time_information(jira_url, user_name, api_token, ssl_certificate, 
             #print(json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": ")))
 
             changelogs_json = response_json['values']
-            found_start_date = False
-            found_end_date = False
 
             for changelog_json in changelogs_json:
                 created = changelog_json['created']

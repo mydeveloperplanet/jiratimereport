@@ -1,0 +1,129 @@
+{
+    "isLast": true,
+    "maxResults": 5,
+    "self": "https://jira_url/rest/api/2/issue/MYB-5/changelog?maxResults=100&startAt=0",
+    "startAt": 5,
+    "total": 9,
+    "values": [
+        {
+            "author": {
+                "accountId": "11223344",
+                "accountType": "atlassian",
+                "active": true,
+                "avatarUrls": {
+                    "16x16": "https://jira_url/FGR-1.png",
+                    "24x24": "https://jira_url/FGR-1.png",
+                    "32x32": "https://jira_url/FGR-1.png",
+                    "48x48": "https://jira_url/FGR-1.png"
+                },
+                "displayName": "John Doe",
+                "emailAddress": "john.doe@a.a",
+                "self": "https://jira_url/rest/api/2/user?accountId=11223344",
+                "timeZone": "Europe/Amsterdam"
+            },
+            "created": "2020-06-09T20:32:58.510+0200",
+            "id": "10201",
+            "items": [
+                {
+                    "field": "summary",
+                    "fieldId": "summary",
+                    "fieldtype": "jira",
+                    "from": null,
+                    "fromString": "Investigate",
+                    "to": null,
+                    "toString": "Investigate "
+                }
+            ]
+        },
+        {
+            "author": {
+                "accountId": "11223344",
+                "accountType": "atlassian",
+                "active": true,
+                "avatarUrls": {
+                    "16x16": "https://jira_url/FGR-1.png",
+                    "24x24": "https://jira_url/FGR-1.png",
+                    "32x32": "https://jira_url/FGR-1.png",
+                    "48x48": "https://jira_url/FGR-1.png"
+                },
+                "displayName": "John Doe",
+                "emailAddress": "john.doe@a.a",
+                "self": "https://jira_url/rest/api/2/user?accountId=11223344",
+                "timeZone": "Europe/Amsterdam"
+            },
+            "created": "2020-06-09T20:41:03.400+0200",
+            "id": "10202",
+            "items": [
+                {
+                    "field": "summary",
+                    "fieldId": "summary",
+                    "fieldtype": "jira",
+                    "from": null,
+                    "fromString": "Investigate ",
+                    "to": null,
+                    "toString": "Investigate \u00e9"
+                }
+            ]
+        },
+        {
+            "author": {
+                "accountId": "11223344",
+                "accountType": "atlassian",
+                "active": true,
+                "avatarUrls": {
+                    "16x16": "https://jira_url/FGR-1.png",
+                    "24x24": "https://jira_url/FGR-1.png",
+                    "32x32": "https://jira_url/FGR-1.png",
+                    "48x48": "https://jira_url/FGR-1.png"
+                },
+                "displayName": "John Doe",
+                "emailAddress": "john.doe@a.a",
+                "self": "https://jira_url/rest/api/2/user?accountId=11223344",
+                "timeZone": "Europe/Amsterdam"
+            },
+            "created": "2020-06-09T20:42:12.254+0200",
+            "id": "10203",
+            "items": [
+                {
+                    "field": "summary",
+                    "fieldId": "summary",
+                    "fieldtype": "jira",
+                    "from": null,
+                    "fromString": "Investigate \u00e9",
+                    "to": null,
+                    "toString": "Investigate"
+                }
+            ]
+        },
+        {
+            "author": {
+                "accountId": "11223344",
+                "accountType": "atlassian",
+                "active": true,
+                "avatarUrls": {
+                    "16x16": "https://jira_url/FGR-1.png",
+                    "24x24": "https://jira_url/FGR-1.png",
+                    "32x32": "https://jira_url/FGR-1.png",
+                    "48x48": "https://jira_url/FGR-1.png"
+                },
+                "displayName": "John Doe",
+                "emailAddress": "john.doe@a.a",
+                "self": "https://jira_url/rest/api/2/user?accountId=11223344",
+                "timeZone": "Europe/Amsterdam"
+            },
+            "created": "2020-01-15T11:08:05.944+0100",
+            "id": "10040",
+            "items": [
+                {
+                    "field": "status",
+                    "fieldId": "status",
+                    "fieldtype": "jira",
+                    "from": "10000",
+                    "fromString": "In Progress",
+                    "to": "3",
+                    "toString": "Done"
+                }
+            ]
+        }
+    ]
+}
