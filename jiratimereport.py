@@ -95,7 +95,7 @@ def get_updated_issues(jira_url, user_name, api_token, project, from_date, to_da
         query = {
             'jql': 'project = "' + project + '" and timeSpent is not null and worklogDate >= "' + from_date +
                    '"' + ' and worklogDate < "' + convert_to_date(to_date).strftime("%Y-%m-%d") + '"',
-            'fields': 'id,key,summary,parent,timeoriginalestimate,timespent',
+            'fields': 'id,key,summary,parent,timeoriginalestimate,timespent,resolutiondate',
             'startAt': str(start_at)
         }
 
@@ -123,73 +123,17 @@ def convert_json_to_issues(response_json):
     """
     issues = []
     for issue_json in response_json['issues']:
+        resolution_date = issue_json['fields']['resolutiondate']
         issues.append(Issue(int(issue_json['id']),
                             issue_json['key'],
                             issue_json['fields']['summary'],
                             issue_json['fields']['parent']['key'] if 'parent' in issue_json['fields'] else None,
                             issue_json['fields']['parent']['fields']['summary'] if 'parent' in issue_json['fields'] else None,
                             issue_json['fields']['timeoriginalestimate'],
-                            issue_json['fields']['timespent']))
+                            issue_json['fields']['timespent'],
+                            datetime.strptime(resolution_date[0:10], "%Y-%m-%d") if resolution_date is not None else None))
 
     return issues
-
-
-def get_issue_time_information(jira_url, user_name, api_token, ssl_certificate, issues):
-    """Retrieve the start and end date of an issue from Jira
-
-    All change logs from the list of issues are retrieved. All change logs are traversed.
-    The start date is determined based on the first occurence of a Work Log or state change.
-    The end date is determined as the date the issue is closed.
-
-    :param jira_url: The base Jira URL
-    :param user_name The user name to use for connecting to Jira
-    :param api_token The API token to use for connecting to Jira
-    :param ssl_certificate The location of the SSL certificate, needed in case of self-signed certificates
-    :param issues: a list of issues
-    """
-    for issue in issues:
-        start_at = 0
-        found_start_date = False
-        found_end_date = False
-
-        while True:
-            url = "/rest/api/2/issue/" + issue.key + "/changelog/"
-            response = get_request(jira_url, user_name, api_token, ssl_certificate, url, None)
-            response_json = json.loads(response.text)
-
-            changelogs_json = response_json['values']
-
-            for changelog_json in changelogs_json:
-                created = changelog_json['created']
-                items_json = changelog_json['items']
-                for item_json in items_json:
-                    field = item_json['field']
-                    if not found_start_date:
-                        if field == "WorklogId":
-                            found_start_date = True
-                            issue.set_issue_start_date(datetime.strptime(created[0:10], "%Y-%m-%d"))
-                        elif field == "status" and (item_json['toString'] != "To Do" or item_json['toString'] != "Done"):
-                            found_start_date = True
-                            issue.set_issue_start_date(datetime.strptime(created[0:10], "%Y-%m-%d"))
-                    if field == "status" and item_json['toString'] == "Done":
-                        found_end_date = True
-                        issue.set_issue_end_date(datetime.strptime(created[0:10], "%Y-%m-%d"))
-                        break
-
-                if found_start_date and found_end_date:
-                    break
-
-            if found_start_date and found_end_date:
-                break
-            else:
-                # Verify whether it is necessary to invoke the API request again because of pagination
-                total_number_of_issues = int(response_json['total'])
-                max_results = int(response_json['maxResults'])
-                max_number_of_issues_processed = start_at + max_results
-                if max_number_of_issues_processed < total_number_of_issues:
-                    start_at = max_number_of_issues_processed
-                else:
-                    break
 
 
 def get_work_logs(jira_url, user_name, api_token, from_date, to_date, ssl_certificate, issues):
@@ -205,7 +149,7 @@ def get_work_logs(jira_url, user_name, api_token, from_date, to_date, ssl_certif
     :param to_date The date to end the time report (the end date is inclusive), format yyyy-mm-dd
     :param ssl_certificate The location of the SSL certificate, needed in case of self-signed certificates
     :param issues: a list of issues
-    :return: the list of work logs which has been requested
+    :return: the list of work logs which has been requested and the updated list of issues
     """
     work_logs = []
     from_date = datetime.strptime(from_date, "%Y-%m-%d")
@@ -226,6 +170,8 @@ def get_work_logs(jira_url, user_name, api_token, from_date, to_date, ssl_certif
             for work_log_json in work_logs_json:
                 started = work_log_json['started']
                 started_date = datetime.strptime(started[0:10], "%Y-%m-%d")
+                if issue.issue_start_date is None:
+                    issue.issue_start_date = started_date
                 if from_date <= started_date < to_date:
                     author_json = work_log_json['updateAuthor']
                     work_logs.append(WorkLog(issue.key,
@@ -242,7 +188,7 @@ def get_work_logs(jira_url, user_name, api_token, from_date, to_date, ssl_certif
             else:
                 break
 
-    return work_logs
+    return work_logs, issues
 
 
 def format_optional_time_field(field, empty_field):
@@ -391,9 +337,8 @@ def main():
 
     issues = get_updated_issues(args.jira_url, args.user_name, args.api_token, args.project, args.from_date,
                                 args.to_date, args.ssl_certificate)
-    get_issue_time_information(args.jira_url, args.user_name, args.api_token, args.ssl_certificate, issues)
-    work_logs = get_work_logs(args.jira_url, args.user_name, args.api_token, args.from_date, args.to_date,
-                              args.ssl_certificate, issues)
+    work_logs, issues = get_work_logs(args.jira_url, args.user_name, args.api_token, args.from_date, args.to_date,
+                                      args.ssl_certificate, issues)
     process_work_logs(args.output, issues, work_logs)
 
 

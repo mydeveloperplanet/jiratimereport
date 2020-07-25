@@ -4,7 +4,7 @@
   "total": 3,
   "worklogs": [
     {
-      "self": "https://jira_url/rest/api/2/issue/10005/worklog/10003",
+      "self": "https://jira_url/rest/api/2/issue/10005/worklog/10002",
       "author": {
         "self": "https://jira_url/rest/api/2/user?accountId=012345678901234567890123",
         "accountId": "012345678901234567890123",
@@ -35,12 +35,12 @@
         "timeZone": "Europe/Amsterdam",
         "accountType": "atlassian"
       },
-      "created": "2020-01-12T12:03:54.694+0100",
-      "updated": "2020-01-12T12:03:54.694+0100",
-      "started": "2020-01-12T11:03:27.142+0100",
-      "timeSpent": "1h",
-      "timeSpentSeconds": 3600,
-      "id": "10003",
+      "created": "2020-01-18T16:39:26.822+0100",
+      "updated": "2020-01-18T16:39:26.822+0100",
+      "started": "2020-01-18T15:09:18.604+0100",
+      "timeSpent": "1h 30m",
+      "timeSpentSeconds": 5400,
+      "id": "10002",
       "issueId": "10005"
     }
   ]

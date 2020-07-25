@@ -44,6 +44,7 @@
               "key": "MYB-3",
               "self": "https://jira_url/rest/api/2/issue/10002"
           },
+          "resolutiondate": "2020-01-20T09:35:05.096+0100",
           "summary": "Summary of issue MYB-5",
           "timeoriginalestimate": 3600,
           "timespent": 900
@@ -92,6 +93,7 @@
               "key": "MYB-3",
               "self": "https://jira_url/rest/api/2/issue/10002"
           },
+          "resolutiondate": null,
           "summary": "Summary of issue MYB-4",
           "timeoriginalestimate": null,
           "timespent": null

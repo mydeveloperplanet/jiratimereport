@@ -44,6 +44,7 @@
               "key": "MYB-3",
               "self": "https://jira_url/rest/api/2/issue/10002"
           },
+          "resolutiondate": null,
           "summary": "Summary of issue MYB-6",
           "timeoriginalestimate": 3600,
           "timespent": 900

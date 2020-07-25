@@ -24,7 +24,7 @@ class MyTestCase(unittest.TestCase):
                                                        "2020-01-10", "2020-01-20", "")
 
         issues_expected_result = [
-            Issue(10005, "MYB-5", "Summary of issue MYB-5", None, None, 3600, 900)]
+            Issue(10005, "MYB-5", "Summary of issue MYB-5", None, None, 3600, 900, None)]
 
         self.assertListEqual(issues_expected_result, issues, "Issues lists are unequal")
 
@@ -38,8 +38,8 @@ class MyTestCase(unittest.TestCase):
         issues = jiratimereport.convert_json_to_issues(response_json)
 
         issues_expected_result = [
-            Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900),
-            Issue(10004, "MYB-4", "Summary of issue MYB-4", "MYB-3", "Summary of the parent issue of MYB-4", None, None)]
+            Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900, datetime(2020, 1, 20)),
+            Issue(10004, "MYB-4", "Summary of issue MYB-4", "MYB-3", "Summary of the parent issue of MYB-4", None, None, None)]
 
         self.assertListEqual(issues_expected_result, issues, "Issues lists are unequal")
 
@@ -56,8 +56,8 @@ class MyTestCase(unittest.TestCase):
                                                        "2020-01-10", "2020-01-20", "")
 
         issues_expected_result = [
-            Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900),
-            Issue(10004, "MYB-4", "Summary of issue MYB-4", "MYB-3", "Summary of the parent issue of MYB-4", 7200, 600)]
+            Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900, datetime(2020, 1, 20)),
+            Issue(10004, "MYB-4", "Summary of issue MYB-4", "MYB-3", "Summary of the parent issue of MYB-4", 7200, 600, None)]
 
         self.assertListEqual(issues_expected_result, issues, "Issues lists are unequal")
 
@@ -78,68 +78,11 @@ class MyTestCase(unittest.TestCase):
                                                        "2020-01-10", "2020-01-20", "")
 
         issues_expected_result = [
-            Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900),
-            Issue(10004, "MYB-4", "Summary of issue MYB-4", "MYB-3", "Summary of the parent issue of MYB-4", 7200, 600),
-            Issue(10006, "MYB-6", "Summary of issue MYB-6", "MYB-3", "Summary of the parent issue of MYB-6", 3600, 900)]
+            Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900, datetime(2020, 1, 20)),
+            Issue(10004, "MYB-4", "Summary of issue MYB-4", "MYB-3", "Summary of the parent issue of MYB-4", 7200, 600, None),
+            Issue(10006, "MYB-6", "Summary of issue MYB-6", "MYB-3", "Summary of the parent issue of MYB-6", 3600, 900, None)]
 
         self.assertListEqual(issues_expected_result, issues, "Issues lists are unequal")
-
-    def test_get_changelogs_one_page(self):
-        """
-        Test the single page response when retrieving Jira changelogs
-        """
-        with open("changelogs_first_issue_one_page.json", "r") as first_issue_file:
-            mock_response_first_issue = first_issue_file.read()
-
-        with open("changelogs_second_issue_one_page.json", "r") as second_issue_file:
-            mock_response_second_issue = second_issue_file.read()
-
-        issues = [Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900),
-                  Issue(10004, "MYB-4", "Summary of issue MYB-4", "MYB-3", "Summary of the parent issue of MYB-4", 7200, 600)]
-
-        with requests_mock.Mocker() as m:
-            m.register_uri('GET', '/rest/api/2/issue/MYB-5/changelog/', text=mock_response_first_issue)
-            m.register_uri('GET', '/rest/api/2/issue/MYB-4/changelog/', text=mock_response_second_issue)
-            jiratimereport.get_issue_time_information("https://jira_url", "user_name", "api_token", "", issues)
-
-        # First start date is a work log
-        issue_myb_5 = Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900)
-        issue_myb_5.set_issue_start_date(datetime(2020, 1, 10))
-        # First start date is based on status
-        issue_myb_4 = Issue(10004, "MYB-4", "Summary of issue MYB-4", "MYB-3", "Summary of the parent issue of MYB-4", 7200, 600)
-        issue_myb_4.set_issue_start_date(datetime(2020, 1, 12))
-        issue_myb_4.set_issue_end_date(datetime(2020, 1, 15))
-
-        issues_expected_result = [issue_myb_5,
-                                  issue_myb_4]
-
-        self.assertListEqual(issues_expected_result, issues, "Issue lists are unequal")
-
-    def test_get_changelogs_multiple_pages(self):
-        """
-        Test the multiple pages response when retrieving Jira changelogs (pagination)
-        """
-        with open("changelogs_multiple_first_page.json", "r") as issues_first_file:
-            mock_response_first_page = issues_first_file.read()
-
-        with open("changelogs_multiple_second_page.json", "r") as issues_second_file:
-            mock_response_second_page = issues_second_file.read()
-
-        issues = [Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900)]
-
-        with requests_mock.Mocker() as m:
-            m.register_uri('GET', '/rest/api/2/issue/MYB-5/changelog/', [{'text': mock_response_first_page},
-                                                                         {'text': mock_response_second_page}])
-            jiratimereport.get_issue_time_information("https://jira_url", "user_name", "api_token", "", issues)
-
-        issue_myb_5 = Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5",
-                            3600, 900)
-        issue_myb_5.set_issue_start_date(datetime(2020, 1, 10))
-        issue_myb_5.set_issue_end_date(datetime(2020, 1, 15))
-
-        issues_expected_result = [issue_myb_5]
-
-        self.assertListEqual(issues_expected_result, issues, "Issue lists are unequal")
 
     def test_get_work_logs_one_page(self):
         """
@@ -151,20 +94,32 @@ class MyTestCase(unittest.TestCase):
         with open("work_logs_second_issue_one_page.json", "r") as second_issue_file:
             mock_response_second_issue = second_issue_file.read()
 
-        issues = [Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900),
-                  Issue(10004, "MYB-4", "Summary of issue MYB-4", "MYB-3", "Summary of the parent issue of MYB-4", 7200, 600)]
+        issues = [Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900, datetime(2020, 1, 20)),
+                  Issue(10004, "MYB-4", "Summary of issue MYB-4", "MYB-3", "Summary of the parent issue of MYB-4", 7200, 600, None)]
 
         with requests_mock.Mocker() as m:
             m.register_uri('GET', '/rest/api/2/issue/MYB-5/worklog/', text=mock_response_first_issue)
             m.register_uri('GET', '/rest/api/2/issue/MYB-4/worklog/', text=mock_response_second_issue)
-            work_logs = jiratimereport.get_work_logs("https://jira_url", "user_name", "api_token",
-                                                     "2020-01-10", "2020-01-20", "", issues)
+            work_logs, issues = jiratimereport.get_work_logs("https://jira_url", "user_name", "api_token",
+                                                             "2020-01-10", "2020-01-20", "", issues)
 
         work_logs_expected_result = [WorkLog("MYB-5", datetime(2020, 1, 18), 3600, "John Doe"),
                                      WorkLog("MYB-5", datetime(2020, 1, 18), 5400, "John Doe"),
                                      WorkLog("MYB-4", datetime(2020, 1, 12), 3600, "John Doe")]
 
         self.assertListEqual(work_logs_expected_result, work_logs, "Work Log lists are unequal")
+
+        issue_myb_5 = Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5",
+                            3600, 900, datetime(2020, 1, 20))
+        issue_myb_5.issue_start_date = datetime(2020, 1, 18)
+        issue_myb_4 = Issue(10004, "MYB-4", "Summary of issue MYB-4", "MYB-3", "Summary of the parent issue of MYB-4",
+                            7200, 600, None)
+        issue_myb_4.issue_start_date = datetime(2020, 1, 12)
+
+        issues_expected_result = [issue_myb_5,
+                                  issue_myb_4]
+
+        self.assertListEqual(issues_expected_result, issues, "Issue lists are unequal")
 
     def test_get_work_logs_multiple_pages(self):
         """
@@ -176,19 +131,27 @@ class MyTestCase(unittest.TestCase):
         with open("work_logs_multiple_second_page.json", "r") as issues_second_file:
             mock_response_second_page = issues_second_file.read()
 
-        issues = [Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900)]
+        issues = [Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900, datetime(2020, 1, 20))]
 
         with requests_mock.Mocker() as m:
             m.register_uri('GET', '/rest/api/2/issue/MYB-5/worklog/', [{'text': mock_response_first_page},
                                                                        {'text': mock_response_second_page}])
-            work_logs = jiratimereport.get_work_logs("https://jira_url", "user_name", "api_token",
-                                                     "2020-01-10", "2020-01-20", "", issues)
+            work_logs, issues = jiratimereport.get_work_logs("https://jira_url", "user_name", "api_token",
+                                                             "2020-01-10", "2020-01-20", "", issues)
 
-        work_logs_expected_result = [WorkLog("MYB-5", datetime(2020, 1, 18), 3600, "John Doe"),
-                                     WorkLog("MYB-5", datetime(2020, 1, 18), 5400, "John Doe"),
-                                     WorkLog("MYB-5", datetime(2020, 1, 12), 3600, "John Doe")]
+        work_logs_expected_result = [WorkLog("MYB-5", datetime(2020, 1, 12), 3600, "John Doe"),
+                                     WorkLog("MYB-5", datetime(2020, 1, 18), 3600, "John Doe"),
+                                     WorkLog("MYB-5", datetime(2020, 1, 18), 5400, "John Doe")]
 
         self.assertListEqual(work_logs_expected_result, work_logs, "Work Log lists are unequal")
+
+        issue_myb_5 = Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5",
+                            3600, 900, datetime(2020, 1, 20))
+        issue_myb_5.issue_start_date = datetime(2020, 1, 12)
+
+        issues_expected_result = [issue_myb_5]
+
+        self.assertListEqual(issues_expected_result, issues, "Issue lists are unequal")
 
     def test_output(self):
         """
@@ -199,10 +162,9 @@ class MyTestCase(unittest.TestCase):
                      WorkLog("MYB-5", datetime(2020, 1, 18), 5400, "John Doe"),
                      WorkLog("MYB-5", datetime(2020, 1, 12), 3600, "John Doe")]
 
-        issue_myb_5 = Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900)
-        issue_myb_5.set_issue_start_date(datetime(2020, 1, 10))
-        issue_myb_5.set_issue_end_date(datetime(2020, 1, 15))
-        issue_myb_7 = Issue(10007, "MYB-7", "Summary of issue MYB-7", None, None, None, None)
+        issue_myb_5 = Issue(10005, "MYB-5", "Summary of issue MYB-5", "MYB-3", "Summary of the parent issue of MYB-5", 3600, 900, datetime(2020, 1, 15))
+        issue_myb_5.issue_start_date = datetime(2020, 1, 10)
+        issue_myb_7 = Issue(10007, "MYB-7", "Summary of issue MYB-7", None, None, None, None, None)
 
         issues = [issue_myb_5,
                   issue_myb_7]
