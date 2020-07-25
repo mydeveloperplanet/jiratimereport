@@ -181,6 +181,14 @@ class MyTestCase(unittest.TestCase):
         jiratimereport.process_work_logs("excel", issues, work_logs)
         self.assertTrue(filecmp.cmp('excel_output.xlsx', 'excel_output.xlsx'))
 
+    def test_format_optional_time_field(self):
+        """
+        Test the formatting of the time field when the time is greater than several days
+        """
+        formatted_time = jiratimereport.format_optional_time_field(99960, "")
+        expected_result = "27:46:00"
+        self.assertEqual(expected_result, formatted_time)
+
 
 if __name__ == '__main__':
     unittest.main()

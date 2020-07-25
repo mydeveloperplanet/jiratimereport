@@ -1,7 +1,7 @@
 import argparse
 import csv
-from datetime import datetime, timedelta
 import json
+from datetime import datetime, timedelta
 from operator import attrgetter
 
 import requests
@@ -198,7 +198,15 @@ def format_optional_time_field(field, empty_field):
     :param empty_field: the return value when the time field is empty
     :return: The formatted time field as a datetime
     """
-    return str(timedelta(seconds=field)) if field is not None else empty_field
+    if field is None:
+        return empty_field
+    else:
+        hour = field // 3600
+        field %= 3600
+        minutes = field // 60
+        field %= 60
+
+        return "%d:%02d:%02d" % (hour, minutes, field)
 
 
 def format_optional_date_field(field, empty_field):
