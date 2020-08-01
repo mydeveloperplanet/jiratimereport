@@ -179,7 +179,7 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue(filecmp.cmp('csv_output.csv', 'jira-time-report.csv'))
 
         jiratimereport.process_work_logs("excel", issues, work_logs)
-        self.assertTrue(filecmp.cmp('excel_output.xlsx', 'excel_output.xlsx'))
+        self.assertTrue(filecmp.cmp('excel_output.xlsx', 'jira-time-report.xlsx'))
 
     def test_format_optional_time_field(self):
         """

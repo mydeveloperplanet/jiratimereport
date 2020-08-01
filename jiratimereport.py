@@ -13,6 +13,7 @@ from worklog import WorkLog
 
 CSV_FILE_NAME = "jira-time-report.csv"
 EXCEL_FILE_NAME = "jira-time-report.xlsx"
+FIELD_NAMES = ['author', 'date', 'issue', 'time_spent', 'original_estimate', 'total_time_spent', 'issue_start_date', 'issue_end_date', 'summary', 'parent', 'parent summary']
 
 
 def get_request(jira_url, user_name, api_token, ssl_certificate, url, params):
@@ -249,8 +250,8 @@ def output_to_csv(issues, work_logs):
     :param work_logs: the list of work logs which must be printed
     """
     with open(CSV_FILE_NAME, 'w', newline='') as csvfile:
-        fieldnames = ['author', 'date', 'issue', 'time_spent', 'original_estimate', 'total_time_spent', 'issue_start_date', 'issue_end_date', 'summary', 'parent', 'parent summary']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, dialect=csv.unix_dialect)
+
+        writer = csv.DictWriter(csvfile, fieldnames=FIELD_NAMES, dialect=csv.unix_dialect)
 
         writer.writeheader()
 
@@ -269,6 +270,17 @@ def output_to_csv(issues, work_logs):
                              'parent summary': work_log_issue.parent_summary})
 
 
+def write_excel_header(worksheet):
+    """
+    Writes a column header to the Excel file
+    :param worksheet: The worksheet to write the header to
+    """
+    cell_number = 0
+    for field_name in FIELD_NAMES:
+        worksheet.write(0, cell_number, field_name)
+        cell_number += 1
+
+
 def output_to_excel(issues, work_logs):
     """Print the work logs to an Excel file
 
@@ -277,16 +289,19 @@ def output_to_excel(issues, work_logs):
     """
     with xlsxwriter.Workbook(EXCEL_FILE_NAME) as workbook:
         worksheet = workbook.add_worksheet()
-        row = 0
+        write_excel_header(worksheet)
+
+        row = 1
+        time_format = workbook.add_format({'num_format': '[h]:mm:ss;@'})
 
         for work_log in work_logs:
             work_log_issue = next((issue for issue in issues if issue.key == work_log.issue_key), None)
             worksheet.write(row, 0, work_log.author)
             worksheet.write(row, 1, work_log.started.strftime('%Y-%m-%d'))
             worksheet.write(row, 2, work_log.issue_key)
-            worksheet.write(row, 3, str(timedelta(seconds=work_log.time_spent)))
-            worksheet.write(row, 4, format_optional_time_field(work_log_issue.original_estimate, None))
-            worksheet.write(row, 5, format_optional_time_field(work_log_issue.time_spent, None))
+            worksheet.write(row, 3, (work_log.time_spent / 86400) if work_log.time_spent else None, time_format)
+            worksheet.write(row, 4, (work_log_issue.original_estimate / 86400) if work_log_issue.original_estimate else None, time_format)
+            worksheet.write(row, 5, (work_log_issue.time_spent / 86400) if work_log_issue.time_spent else None, time_format)
             worksheet.write(row, 6, format_optional_date_field(work_log_issue.issue_start_date, None))
             worksheet.write(row, 7, format_optional_date_field(work_log_issue.issue_end_date, None))
             worksheet.write(row, 8, work_log_issue.summary)
