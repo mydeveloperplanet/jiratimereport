@@ -257,17 +257,17 @@ def output_to_csv(issues, work_logs):
 
         for work_log in work_logs:
             work_log_issue = next((issue for issue in issues if issue.key == work_log.issue_key), None)
-            writer.writerow({'author': work_log.author,
-                             'date': work_log.started.strftime('%Y-%m-%d'),
-                             'issue': work_log.issue_key,
-                             'time_spent': work_log.time_spent,
-                             'original_estimate': work_log_issue.original_estimate,
-                             'total_time_spent': work_log_issue.time_spent,
-                             'issue_start_date': format_optional_date_field(work_log_issue.issue_start_date, None),
-                             'issue_end_date': format_optional_date_field(work_log_issue.issue_end_date, None),
-                             'summary': work_log_issue.summary,
-                             'parent': work_log_issue.parent_key,
-                             'parent_summary': work_log_issue.parent_summary})
+            writer.writerow({FIELD_NAMES[0]: work_log.author,
+                             FIELD_NAMES[1]: work_log.started.strftime('%Y-%m-%d'),
+                             FIELD_NAMES[2]: work_log.issue_key,
+                             FIELD_NAMES[3]: work_log.time_spent,
+                             FIELD_NAMES[4]: work_log_issue.original_estimate,
+                             FIELD_NAMES[5]: work_log_issue.time_spent,
+                             FIELD_NAMES[6]: format_optional_date_field(work_log_issue.issue_start_date, None),
+                             FIELD_NAMES[7]: format_optional_date_field(work_log_issue.issue_end_date, None),
+                             FIELD_NAMES[8]: work_log_issue.summary,
+                             FIELD_NAMES[9]: work_log_issue.parent_key,
+                             FIELD_NAMES[10]: work_log_issue.parent_summary})
 
 
 def write_excel_header(worksheet):
