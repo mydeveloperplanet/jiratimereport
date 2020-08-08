@@ -233,7 +233,7 @@ def output_to_console(issues, work_logs):
         print(work_log.author + ";" +
               work_log.started.strftime('%Y-%m-%d') + ";" +
               work_log.issue_key + ";" +
-              str(timedelta(seconds=work_log.time_spent)) + ";" +
+              format_optional_time_field(work_log.time_spent, "") + ";" +
               format_optional_time_field(work_log_issue.original_estimate, "") + ";" +
               format_optional_time_field(work_log_issue.time_spent, "") + ";" +
               format_optional_date_field(work_log_issue.issue_start_date, "") + ";" +
