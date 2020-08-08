@@ -174,7 +174,7 @@ def get_work_logs(jira_url, user_name, api_token, from_date, to_date, ssl_certif
                 if issue.issue_start_date is None:
                     issue.issue_start_date = started_date
                 if from_date <= started_date < to_date:
-                    author_json = work_log_json['updateAuthor']
+                    author_json = work_log_json['author']
                     work_logs.append(WorkLog(issue.key,
                                              started_date,
                                              int(work_log_json['timeSpentSeconds']),
