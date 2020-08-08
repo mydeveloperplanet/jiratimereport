@@ -13,7 +13,7 @@ from worklog import WorkLog
 
 CSV_FILE_NAME = "jira-time-report.csv"
 EXCEL_FILE_NAME = "jira-time-report.xlsx"
-FIELD_NAMES = ['author', 'date', 'issue', 'time_spent', 'original_estimate', 'total_time_spent', 'issue_start_date', 'issue_end_date', 'summary', 'parent', 'parent summary']
+FIELD_NAMES = ['author', 'date', 'issue', 'time_spent', 'original_estimate', 'total_time_spent', 'issue_start_date', 'issue_end_date', 'summary', 'parent', 'parent_summary']
 
 
 def get_request(jira_url, user_name, api_token, ssl_certificate, url, params):
@@ -267,7 +267,7 @@ def output_to_csv(issues, work_logs):
                              'issue_end_date': format_optional_date_field(work_log_issue.issue_end_date, None),
                              'summary': work_log_issue.summary,
                              'parent': work_log_issue.parent_key,
-                             'parent summary': work_log_issue.parent_summary})
+                             'parent_summary': work_log_issue.parent_summary})
 
 
 def write_excel_header(worksheet):

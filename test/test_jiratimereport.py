@@ -181,6 +181,7 @@ class MyTestCase(unittest.TestCase):
         jiratimereport.process_work_logs("csv", issues, work_logs)
         self.assertTrue(filecmp.cmp('csv_output.csv', 'jira-time-report.csv'))
 
+        jiratimereport.process_work_logs("excel", issues, work_logs)
         expected_excel = pd.read_excel('excel_output.xlsx')
         actual_excel = pd.read_excel('jira-time-report.xlsx')
         self.assertTrue(expected_excel.equals(actual_excel))
