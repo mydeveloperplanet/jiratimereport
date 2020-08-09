@@ -40,7 +40,7 @@ Usage of the script:
 
 The following data is present in the report:
 
-Time fields are in seconds for the CSV and Excel reports, in format hours, minutes, seconds for the console report.
+Time fields are in seconds for the CSV report and in (hours:minutes:seconds) format for the excel and console report.
 * **author**: The person who created the Work Log.
 * **date**: The date the Work Log has been created.
 * **issue**: The Jira issue key the Work Log was created for.
