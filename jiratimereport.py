@@ -12,6 +12,7 @@ from issue import Issue
 from worklog import WorkLog
 
 CSV_FILE_NAME = "jira-time-report.csv"
+EXCEL_COLUMN_WIDTH = 16
 EXCEL_FILE_NAME = "jira-time-report.xlsx"
 FIELD_NAMES = ['author', 'date', 'issue', 'time_spent', 'original_estimate', 'total_time_spent', 'issue_start_date', 'issue_end_date', 'summary', 'parent', 'parent_summary']
 
@@ -281,6 +282,22 @@ def write_excel_header(worksheet):
         cell_number += 1
 
 
+def set_excel_column_width(worksheet, author_column_width, summary_column_width, parent_summary_column_width):
+    """
+    Sets the Excel column width in order to simulate auto column width
+
+    :param worksheet: The Excel worksheet object
+    :param author_column_width: The column width of the author column
+    :param summary_column_width: The column width of the summary column
+    :param parent_summary_column_width: The column width of the parent_summary column
+    """
+    worksheet.set_column('A:A', author_column_width)
+    worksheet.set_column('B:H', EXCEL_COLUMN_WIDTH)
+    worksheet.set_column('I:I', summary_column_width)
+    worksheet.set_column('J:J', EXCEL_COLUMN_WIDTH)
+    worksheet.set_column('K:K', parent_summary_column_width)
+
+
 def output_to_excel(issues, work_logs):
     """Print the work logs to an Excel file
 
@@ -293,6 +310,9 @@ def output_to_excel(issues, work_logs):
 
         row = 1
         time_format = workbook.add_format({'num_format': '[h]:mm:ss;@'})
+        author_column_width = 0
+        summary_column_width = 0
+        parent_summary_column_width = 0
 
         for work_log in work_logs:
             work_log_issue = next((issue for issue in issues if issue.key == work_log.issue_key), None)
@@ -308,7 +328,16 @@ def output_to_excel(issues, work_logs):
             worksheet.write(row, 9, work_log_issue.parent_key)
             worksheet.write(row, 10, work_log_issue.parent_summary)
 
+            if author_column_width < len(work_log.author):
+                author_column_width = len(work_log.author)
+            if summary_column_width < len(work_log_issue.summary):
+                summary_column_width = len(work_log_issue.summary)
+            if work_log_issue.parent_summary is not None and parent_summary_column_width < len(work_log_issue.parent_summary):
+                parent_summary_column_width = len(work_log_issue.parent_summary)
+
             row += 1
+
+        set_excel_column_width(worksheet, author_column_width, summary_column_width, parent_summary_column_width)
 
 
 def process_work_logs(output, issues, work_logs):
